@@ -1,0 +1,64 @@
+/* Sidebar base */
+.sidebar {
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    color: white;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Drawer escondido */
+.hidden {
+    transform: translateX(-100%);
+}
+
+/* Drawer visível */
+.visible {
+    transform: translateX(0);
+}
+
+/* Estilo para o item selecionado na sidebar */
+.sidebar .dropdown-item.active,
+.sidebar .dropdown-item:active {
+    background-color: white;
+    color: black;
+}
+
+/* Para telas maiores, o sidebar fica fixo sem translação */
+@media (min-width: 768px) {
+    .sidebar {
+        transform: none !important;
+    }
+}
+
+/* Botão de fechar no drawer (apenas em telas pequenas) */
+.close-drawer {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.sidebar-act{
+    background-color: #1d3247 !important;
+    border-radius: 0 !important;
+    border-bottom: 1px solid #fff;
+}
+
+.nav-link:hover{
+    background-color: #1d3247 !important;
+    border-radius: 0 !important;
+}
+
+/* style.css */
+
+.dropup .dropdown-menu {
+  bottom: 100%; /* posiciona o menu acima do botão */
+  right:0%;
+  top: auto !important; /* remove qualquer top */
+  margin-bottom: 0.5rem; /* dá um pequeno espaço entre botão e menu */
+  z-index: 1050; /* garante que fica por cima */
+  position: absolute;
+}
