@@ -13,8 +13,6 @@ function PropostasEditGestor() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [userData, setUserData] = useState(null); // <-- adiciona este estado
-
   const [formData, setFormData] = useState({
     nome: "",
     categoria: "",
@@ -46,24 +44,10 @@ function PropostasEditGestor() {
     { id: 3, nome: "Empresa Gama" },
   ];
 
-  // Verificação do utilizador autenticado e tipo
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user || user.tipoutilizador !== 2) {
-      navigate("/");
-    } else {
-      setUserData(user);
-    }
-  }, [navigate]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:3000/api/propostas/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await axios.get(`http://localhost:3000/api/propostas/${id}`);
         const data = res.data;
 
         setFormData({
@@ -105,13 +89,11 @@ function PropostasEditGestor() {
     };
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(`http://localhost:3000/api/propostas/${id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.put(`http://localhost:3000/api/propostas/${id}`, payload);
+      console.log("Resposta do servidor:", res.status, res.data);
       if (res.status >= 200 && res.status < 300) {
         alert("Proposta editada com sucesso!");
-        navigate("/empresas/propostas");
+        navigate("/gestor/propostas");
       } else {
         alert("Erro ao editar proposta.");
       }
@@ -120,8 +102,16 @@ function PropostasEditGestor() {
     }
   };
 
-  // Evita renderizar antes de saber se user é válido
-  if (!userData) return null;
+  const handleDelete = async () => {
+    if (!window.confirm("Tens a certeza que queres eliminar esta proposta?")) return;
+    try {
+      await axios.delete(`http://localhost:3000/api/propostas/${id}`);
+      alert("Proposta eliminada com sucesso.");
+      navigate("/gestor/propostas");
+    } catch (err) {
+      alert("Erro ao eliminar: " + (err.response?.data?.error || err.message));
+    }
+  };
 
   return (
     <div className="main-wrapper">
@@ -147,7 +137,7 @@ function PropostasEditGestor() {
                     >
                       <div className="d-flex justify-content-md-end justify-content-center">
                         <Link
-                          to={"/empresas/propostas"}
+                          to={"/gestor/propostas"}
                           className="btn_custom bg-transparent text-decoration-none"
                         >
                           Voltar
@@ -155,9 +145,6 @@ function PropostasEditGestor() {
                       </div>
 
                       <form onSubmit={handleSubmit}>
-                        {/* ... o resto do formulário permanece igual ... */}
-                        {/* (não alterei esta parte para manter o teu layout) */}
-
                         <div className="row d-flex justify-content-center align-items-md-start align-items-sm-start">
                           <div className="col-md-3 col-sm-12">
                             <div className="image-hover-wrapper position-relative">
@@ -167,8 +154,6 @@ function PropostasEditGestor() {
                           </div>
 
                           <div className="col-md-9 col-sm-12">
-                            {/* Campos do formulário aqui */}
-
                             {/* Título */}
                             <div className="mb-3">
                               <label className="form-label">Título da Proposta</label>
@@ -289,25 +274,46 @@ function PropostasEditGestor() {
                               </select>
                             </div>
 
-                            <button
-                              type="submit"
-                              className="btn btn-primary btn-block mt-4"
-                            >
-                              Editar Proposta
-                            </button>
+                            {/* Botões */}
+                            <div className="row mb-3">
+                              <div className="col-md-4 col-sm-12">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger w-100 mt-3"
+                                  onClick={() => navigate("/gestor/propostas")}
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                              <div className="col-md-4 col-sm-12">
+                                <button type="submit" className="btn btn-primary w-100 mt-3">
+                                  Guardar Alterações
+                                </button>
+                              </div>
+                              <div className="col-md-4 col-sm-12">
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-danger w-100 mt-3"
+                                  onClick={handleDelete}
+                                >
+                                  Eliminar Proposta
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </form>
                     </div>
+                    <br />
                   </div>
                 </div>
               </div>
             </div>
-            <Footer />
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+      <Footer />
+    </div >
   );
 }
 
