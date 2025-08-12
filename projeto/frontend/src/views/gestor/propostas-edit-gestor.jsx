@@ -47,7 +47,10 @@ function PropostasEditGestor() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/propostas/${id}`);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`http://localhost:3000/api/propostas/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         const data = res.data;
 
         setFormData({
@@ -89,7 +92,10 @@ function PropostasEditGestor() {
     };
 
     try {
-      const res = await axios.put(`http://localhost:3000/api/propostas/${id}`, payload);
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`http://localhost:3000/api/propostas/${id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       console.log("Resposta do servidor:", res.status, res.data);
       if (res.status >= 200 && res.status < 300) {
         alert("Proposta editada com sucesso!");
@@ -105,7 +111,10 @@ function PropostasEditGestor() {
   const handleDelete = async () => {
     if (!window.confirm("Tens a certeza que queres eliminar esta proposta?")) return;
     try {
-      await axios.delete(`http://localhost:3000/api/propostas/${id}`);
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:3000/api/propostas/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       alert("Proposta eliminada com sucesso.");
       navigate("/gestor/propostas");
     } catch (err) {

@@ -30,6 +30,7 @@ export default function SideBarGestor({ visible, onClose }) {
           <li><NavLink to="/gestor/dashboard" className="nav-link text-white">Início</NavLink></li>
           <li><NavLink to="/gestor/propostas/add" className="nav-link text-white">Adicionar Proposta</NavLink></li>
           <li><NavLink to="/gestor/propostas/validate" className="nav-link text-white">Validar Propostas</NavLink></li>
+          <li><NavLink to="/gestor/propostas" className="nav-link text-white">Propostas</NavLink></li>
         </ul>
         <hr className="m-0" />
         <div className="user-info d-flex align-items-center justify-content-between text-white px-3">

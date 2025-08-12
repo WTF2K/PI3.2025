@@ -32,6 +32,8 @@ import InicioGestor from "./gestor/inicio-gestor";
 import PropostasValidateGestor from "./gestor/propostas-validate-gestor";
 import PropostasADDGestor from "./gestor/propostas-add-gestor";
 import PropostasEditGestor from "./gestor/propostas-edit-gestor";
+import PropostasListGestor from "./gestor/propostas-list-gestor";
+
 {
   /* Inicio ADMIN ⇩*/
 }
@@ -76,6 +78,8 @@ function App() {
         <Route path="/gestor/propostas/add" element={<PropostasADDGestor />} />
         <Route path="/gestor/propostas/:id" element={<PropostasEditGestor />} />
         <Route path="/gestor/propostas/validate" element={<PropostasValidateGestor />} />
+        <Route path="/gestor/propostas" element={<PropostasListGestor />} />
+   
         {/* Admin */}
         <Route path="/adm/dashboard" element={<InicioAdmin />} />
         <Route path="/adm/notifications" element={<NotifAdmin />} />
