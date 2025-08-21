@@ -29,6 +29,9 @@ import PropostasEditEmpresa from "./empresa/propostas-edit-empresa";
   /* Inicio GESTOR ⇩*/
 }
 import InicioGestor from "./gestor/inicio-gestor";
+
+import Dashboard2Gestor from "./gestor/dashboard2-gestor";
+import EstudantesGestor from "./gestor/estudantes-gestor";
 import PropostasValidateGestor from "./gestor/propostas-validate-gestor";
 import PropostasADDGestor from "./gestor/propostas-add-gestor";
 import PropostasEditGestor from "./gestor/propostas-edit-gestor";
@@ -74,7 +77,10 @@ function App() {
         <Route path="/empresas/propostas" element={<PropostasEmpresa />} />
         <Route path="/empresas/propostas/add" element={<PropostasADDEmpresa />} />
         {/* Gestor */}
-        <Route path="/gestor/dashboard" element={<InicioGestor />} />
+        
+        <Route path="/gestor/dashboard2" element={<Dashboard2Gestor />} />
+        <Route path="/gestor/inicio" element={<InicioGestor />} />
+        <Route path="/gestor/estudantes" element={<EstudantesGestor />} />
         <Route path="/gestor/propostas/add" element={<PropostasADDGestor />} />
         <Route path="/gestor/propostas/:id" element={<PropostasEditGestor />} />
         <Route path="/gestor/propostas/validate" element={<PropostasValidateGestor />} />

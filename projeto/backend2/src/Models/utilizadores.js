@@ -54,6 +54,24 @@ module.exports = function(sequelize, DataTypes) {
     percurso: {
       type: DataTypes.CHAR(256),
       allowNull: true
+    },
+    ativo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true
+    },
+    pedido_remocao: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false
+    },
+    data_remocao: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    telefone: {
+      type: DataTypes.STRING(20),
+      allowNull: true
     }
   }, {
     sequelize,

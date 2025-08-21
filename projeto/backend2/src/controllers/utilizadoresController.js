@@ -219,3 +219,80 @@ exports.getByNome = async (req, res) => {
     return res.status(500).json({ message: "Erro no servidor" });
   }
 };
+
+// Obter apenas estudantes
+exports.getEstudantes = async (req, res) => {
+  try {
+    const estudantes = await utilizadores.findAll({
+      where: { idtuser: 4 }
+    });
+    res.json(estudantes);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao obter estudantes: " + err.message });
+  }
+};
+
+// Obter estudantes com pedidos de remoção
+exports.getEstudantesPedidoRemocao = async (req, res) => {
+  try {
+    const estudantes = await utilizadores.findAll({
+      where: { 
+        idtuser: 4,
+        pedido_remocao: true
+      }
+    });
+    res.json(estudantes);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao obter estudantes: " + err.message });
+  }
+};
+
+// Aprovar pedido de remoção de estudante
+exports.aprovarRemocao = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de utilizador inválido." });
+    }
+
+    const [updated] = await utilizadores.update({
+      ativo: false,
+      data_remocao: new Date().toISOString().split('T')[0],
+      pedido_remocao: false
+    }, {
+      where: { iduser: id, idtuser: 4 }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Estudante não encontrado." });
+    }
+
+    res.status(200).json({ message: "Estudante removido com sucesso." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao aprovar remoção: " + err.message });
+  }
+};
+
+// Rejeitar pedido de remoção de estudante
+exports.rejeitarPedidoRemocao = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de utilizador inválido." });
+    }
+
+    const [updated] = await utilizadores.update({
+      pedido_remocao: false
+    }, {
+      where: { iduser: id, idtuser: 4 }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Estudante não encontrado." });
+    }
+
+    res.status(200).json({ message: "Pedido de remoção rejeitado com sucesso." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao rejeitar pedido: " + err.message });
+  }
+};

@@ -146,3 +146,52 @@ exports.delete = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Validar proposta (aprovar)
+exports.validar = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { validada, validado_por } = req.body;
+
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de proposta inválido." });
+    }
+
+    const dadosAtualizar = {
+      validada: validada,
+      data_validacao: new Date().toISOString().split('T')[0],
+      validado_por: validado_por || null
+    };
+
+    const [updated] = await propostas.update(dadosAtualizar, {
+      where: { idproposta: id }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    res.status(200).json({ message: "Proposta validada com sucesso." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao validar proposta: " + err.message });
+  }
+};
+
+// Obter propostas pendentes de validação
+exports.getPendentes = async (req, res) => {
+  try {
+    const propostasPendentes = await propostas.findAll({
+      where: { validada: false },
+      include: [
+        {
+          model: empresas,
+          as: 'empresa',
+          attributes: ['nome']
+        }
+      ]
+    });
+    res.json(propostasPendentes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

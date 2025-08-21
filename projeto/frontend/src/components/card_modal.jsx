@@ -94,13 +94,18 @@ class CardModal extends React.Component {
                 ) : (
                   <>
                     <FontAwesomeIcon
-                      className="me-2"
+                      className="me-2 text-success"
                       icon={faCheckCircle}
                       data-tooltip-id="tooltip-info-4"
+                      onClick={() => this.props.onValidar && this.props.onValidar(true)}
+                      style={{ cursor: 'pointer' }}
                     />
                     <FontAwesomeIcon
+                      className="text-danger"
                       icon={faTimesCircle}
                       data-tooltip-id="tooltip-info-5"
+                      onClick={() => this.props.onValidar && this.props.onValidar(false)}
+                      style={{ cursor: 'pointer' }}
                     />
                   </>
                 )}
@@ -172,13 +177,18 @@ class CardModal extends React.Component {
                 ) : (
                   <>
                     <FontAwesomeIcon
-                      className="me-2"
+                      className="me-2 text-success"
                       icon={faCheckCircle}
                       data-tooltip-id="tooltip-info-4"
+                      onClick={() => this.props.onValidar && this.props.onValidar(true)}
+                      style={{ cursor: 'pointer' }}
                     />
                     <FontAwesomeIcon
+                      className="text-danger"
                       icon={faTimesCircle}
                       data-tooltip-id="tooltip-info-5"
+                      onClick={() => this.props.onValidar && this.props.onValidar(false)}
+                      style={{ cursor: 'pointer' }}
                     />
                   </>
                 )}

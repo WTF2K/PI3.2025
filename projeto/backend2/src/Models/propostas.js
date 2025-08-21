@@ -70,6 +70,19 @@ module.exports = function(sequelize, DataTypes) {
     vaga: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    validada: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false
+    },
+    data_validacao: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    validado_por: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

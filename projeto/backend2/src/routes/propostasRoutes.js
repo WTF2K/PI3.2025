@@ -5,9 +5,11 @@ const { autenticarJWT } = require('../Middleware/authMiddleware');
 
 
 router.get('/',autenticarJWT, controller.getAll);
+router.get('/pendentes',autenticarJWT, controller.getPendentes);
 router.get('/:id',autenticarJWT, controller.getById);
 router.post('/', controller.create);
 router.put('/:id',autenticarJWT, controller.update);
+router.put('/:id/validar',autenticarJWT, controller.validar);
 router.delete('/:id',autenticarJWT, controller.delete);
 
 

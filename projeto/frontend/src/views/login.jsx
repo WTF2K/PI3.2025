@@ -93,7 +93,7 @@ function Login() {
           navigate("/empresa/dashboard");
           break;
         case 2:
-          navigate("/gestor/dashboard");
+          navigate("/gestor/inicio");
           break;
         case 1:
           navigate("/adm/dashboard");

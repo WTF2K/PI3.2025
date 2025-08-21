@@ -31,21 +31,46 @@ function PropostasValidateGestor() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    axios.get("http://localhost:3000/api/propostas", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((res) => {
-        setPropostas(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Erro ao buscar propostas:", err);
-        setErro("Erro ao carregar propostas.");
-        setLoading(false);
+  const fetchPropostasPendentes = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:3000/api/propostas/pendentes", {
+        headers: { Authorization: `Bearer ${token}` }
       });
+      setPropostas(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Erro ao buscar propostas pendentes:", err);
+      setErro("Erro ao carregar propostas pendentes.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPropostasPendentes();
   }, []);
+
+  const handleValidar = async (propostaId, validada) => {
+    try {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
+      
+      await axios.put(`http://localhost:3000/api/propostas/${propostaId}/validar`, {
+        validada: validada,
+        validado_por: user?.iduser || null
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Atualizar a lista de propostas pendentes
+      await fetchPropostasPendentes();
+      
+      alert(validada ? "Proposta aprovada com sucesso!" : "Proposta rejeitada com sucesso!");
+    } catch (err) {
+      console.error("Erro ao validar proposta:", err);
+      alert("Erro ao validar proposta. Tente novamente.");
+    }
+  };
 
   return (
     <div className="main-wrapper">
@@ -104,10 +129,14 @@ function PropostasValidateGestor() {
                               <FontAwesomeIcon
                                 className="me-2 text-success"
                                 icon={faCheckCircle}
+                                onClick={() => handleValidar(selectedDetails.idproposta, true)}
+                                style={{ cursor: 'pointer' }}
                               />
                               <FontAwesomeIcon
-                                className=" text-danger"
+                                className="text-danger"
                                 icon={faTimesCircle}
+                                onClick={() => handleValidar(selectedDetails.idproposta, false)}
+                                style={{ cursor: 'pointer' }}
                               />
                             </div>
                             <div className="d-flex justify-content-md-end justify-content-center">
@@ -147,9 +176,11 @@ function PropostasValidateGestor() {
                     {/* Lista de cartões */}
                     <div className="mt-3 cards-wrapper d-flex flex-wrap gap-0 justify-content-center">
                       {loading ? (
-                        <p>A carregar propostas...</p>
+                        <p>A carregar propostas pendentes...</p>
                       ) : erro ? (
                         <p className="text-danger">{erro}</p>
+                      ) : propostas.length === 0 ? (
+                        <p>Não há propostas pendentes de validação.</p>
                       ) : (
                         propostas.map((data, index) => (
                           <div className="card-component w-100" key={index}>
@@ -163,6 +194,7 @@ function PropostasValidateGestor() {
                                 setSelectedDetails(data);
                                 topRef.current?.scrollIntoView({ behavior: "smooth" });
                               }}
+                              onValidar={(validada) => handleValidar(data.idproposta, validada)}
                             />
                           </div>
                         ))
