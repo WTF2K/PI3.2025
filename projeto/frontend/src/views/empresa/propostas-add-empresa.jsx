@@ -63,7 +63,7 @@ function PropostasADDEmpresa() {
       const res = await axios.post("http://localhost:3000/api/propostas", payload);
       if (res.status === 201 || res.data) {
         alert("Proposta adicionada com sucesso!");
-        navigate("/empresas/propostas");
+        navigate("/empresa/propostas");
       } else {
         alert("Erro ao adicionar proposta.");
       }
@@ -98,7 +98,7 @@ function PropostasADDEmpresa() {
                     >
                       <div className="d-flex justify-content-md-end justify-content-center">
                         <Link
-                          to={"/empresas/propostas"}
+                          to={"/empresa/propostas"}
                           className="btn_custom bg-transparent text-decoration-none"
                         >
                           Voltar
@@ -202,7 +202,7 @@ function PropostasADDEmpresa() {
                                 <button
                                   type="button"
                                   className="btn btn-danger w-100 mt-3"
-                                  onClick={() => navigate("/empresas/propostas")}
+                                  onClick={() => navigate("/empresa/propostas")}
                                 >
                                   Cancelar
                                 </button>

@@ -105,7 +105,7 @@ function PropostasEditEmpresa() {
       const res = await axios.put(`http://localhost:3000/api/propostas/${id}`, payload);
       if (res.status >= 200 && res.status < 300) {
         alert("Proposta editada com sucesso!");
-        navigate("/empresas/propostas");
+        navigate("/empresa/propostas");
       } else {
         alert("Erro ao editar proposta.");
       }
@@ -141,7 +141,7 @@ function PropostasEditEmpresa() {
                     >
                       <div className="d-flex justify-content-md-end justify-content-center">
                         <Link
-                          to={"/empresas/propostas"}
+                          to={"/empresa/propostas"}
                           className="btn_custom bg-transparent text-decoration-none"
                         >
                           Voltar

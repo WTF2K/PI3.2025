@@ -21,7 +21,7 @@ import InicioEstudante from "./estudante/inicio-estudante";
 }
 import PerfilEmpresa from "./perfil-empresa";
 import EditarEmpresa from "./editar-empresa";
-import InicioEmpresa from "./estudante/inicio-estudante";
+import InicioEmpresa from "./empresa/inicio-empresa";
 import PropostasEmpresa from "./empresa/propostas-list-empresa";
 import PropostasADDEmpresa from "./empresa/propostas-add-empresa";
 import PropostasEditEmpresa from "./empresa/propostas-edit-empresa";
@@ -74,8 +74,8 @@ function App() {
         <Route path="/empresa/:id" element={<PerfilEmpresa />} />
         <Route path="/empresa/:id/editar" element={<EditarEmpresa />} />
         <Route path="/empresa/dashboard" element={<InicioEmpresa />} />
-        <Route path="/empresas/propostas" element={<PropostasEmpresa />} />
-        <Route path="/empresas/propostas/add" element={<PropostasADDEmpresa />} />
+        <Route path="/empresa/propostas" element={<PropostasEmpresa />} />
+        <Route path="/empresa/propostas/add" element={<PropostasADDEmpresa />} />
         {/* Gestor */}
         
         <Route path="/gestor/dashboard2" element={<Dashboard2Gestor />} />

@@ -10,7 +10,7 @@ import {
   faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 
 import SideBar from "../../components/sidebarestudante";
@@ -24,6 +24,7 @@ function InicioEstudante() {
   const topRef = useRef(null);
   const [DataPropostas, setDataPropostas] = useState([]);
   const [selectedDetails, setSelectedDetails] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -42,6 +43,23 @@ function InicioEstudante() {
         alert("Erro de ligação à API: " + error.message);
       });
   }
+
+  const filteredPropostas = useMemo(() => {
+    const query = (searchText || "").toLowerCase().trim();
+    if (!query) return DataPropostas;
+    return DataPropostas.filter((p) => {
+      const nome = (p.nome || "").toLowerCase();
+      const categoria = (p.categoria || "").toLowerCase();
+      const vaga = (p.vaga || "").toLowerCase();
+      const localizacao = (p.localizacao || "").toLowerCase();
+      return (
+        nome.includes(query) ||
+        categoria.includes(query) ||
+        vaga.includes(query) ||
+        localizacao.includes(query)
+      );
+    });
+  }, [DataPropostas, searchText]);
 
   return (
     <div className="main-wrapper">
@@ -68,11 +86,16 @@ function InicioEstudante() {
                               borderTopRightRadius: "0",
                               borderBottomRightRadius: "0",
                             }}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
                           />
                         </div>
                         <div className="d-flex flex-row justify-content-between">
                           <div className="col-3">
-                            <button className="search-btn btn form_input rounded-0">
+                            <button
+                              className="search-btn btn form_input rounded-0"
+                              onClick={() => setSearchText((t) => t.trim())}
+                            >
                               <FontAwesomeIcon icon={faMagnifyingGlass} />
                             </button>
                           </div>
@@ -164,7 +187,7 @@ function InicioEstudante() {
 
                     {/* Cards com os dados reais */}
                     <div className="cards-wrapper d-flex flex-wrap gap-4 justify-content-center">
-                      {DataPropostas.map((data, index) => (
+                      {filteredPropostas.map((data, index) => (
                         <div className="card-component" key={index}>
                           <Card
                             empresa={data.nome || "Empresa"}

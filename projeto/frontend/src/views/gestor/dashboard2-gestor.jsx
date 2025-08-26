@@ -60,15 +60,22 @@ function Dashboard2Gestor() {
       const propostas = propostasResponse.data;
       const estudantes = estudantesResponse.data;
 
-      // Calcular estatísticas (modo temporário)
+      // Calcular estatísticas reais
       const totalPropostas = propostas.length;
-      const propostasPendentes = propostas.length; // Temporário: todas pendentes
-      const propostasAprovadas = 0; // Temporário: nenhuma aprovada
-      const propostasRejeitadas = 0; // Temporário: nenhuma rejeitada
+      const propostasPendentes = propostas.filter(
+        (p) => p.data_validacao === null || p.data_validacao === undefined
+      ).length;
+      const propostasAprovadas = propostas.filter((p) => p.validada === true)
+        .length;
+      const propostasRejeitadas = propostas.filter(
+        (p) => p.validada === false && p.data_validacao
+      ).length;
 
       const totalEstudantes = estudantes.length;
-      const estudantesAtivos = estudantes.length; // Temporário: todos ativos
-      const estudantesPendentesRemocao = 0; // Temporário: nenhum pedido
+      const estudantesAtivos = estudantes.filter((e) => e.ativo !== false).length;
+      const estudantesPendentesRemocao = estudantes.filter(
+        (e) => e.pedido_remocao === true
+      ).length;
 
       setStats({
         totalPropostas,
@@ -330,8 +337,18 @@ function Dashboard2Gestor() {
                                         : "N/A"}
                                     </td>
                                     <td>
-                                      <span className="badge bg-warning">
-                                        Pendente
+                                      <span
+                                        className={`badge bg-${getStatusColor(
+                                          proposta.data_validacao
+                                            ? proposta.validada
+                                            : undefined
+                                        )}`}
+                                      >
+                                        {getStatusText(
+                                          proposta.data_validacao
+                                            ? proposta.validada
+                                            : undefined
+                                        )}
                                       </span>
                                     </td>
                                   </tr>

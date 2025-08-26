@@ -177,11 +177,18 @@ exports.validar = async (req, res) => {
   }
 };
 
-// Obter propostas pendentes de validação
+// Obter propostas pendentes de validação (ainda sem data_validacao)
 exports.getPendentes = async (req, res) => {
   try {
+    const { Op } = require('sequelize');
     const propostasPendentes = await propostas.findAll({
-      where: { validada: false },
+      where: {
+        [Op.or]: [
+          { validada: null },
+          { validada: false }
+        ],
+        data_validacao: { [Op.is]: null }
+      },
       include: [
         {
           model: empresas,

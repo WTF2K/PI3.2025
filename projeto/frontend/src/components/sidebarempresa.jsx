@@ -36,10 +36,8 @@ export default function SideBarEmpresa({ visible, onClose }) {
           <li><NavLink to="/empresa/dashboard" className="nav-link text-white">Início</NavLink></li>
           <li><NavLink to={`/empresa/${idempresa}`} className="nav-link text-white">Perfil Empresa</NavLink></li>
           <li><NavLink to={`/empresa/${idempresa}/editar`} className="nav-link text-white">Editar Perfil Empresa</NavLink></li>
-          <li><NavLink to={`/utilizador/${iduser}`} className="nav-link text-white">Perfil Utilizador</NavLink></li>
-          <li><NavLink to="/empresas/propostas" className="nav-link text-white">Ver Propostas</NavLink></li>
-          <li><NavLink to="/empresas/propostas/add" className="nav-link text-white">Adicionar Propostas</NavLink></li>
-          <li><NavLink to="/empresas/propostas/add" className="nav-link text-white">Editar Propostas</NavLink></li>
+          <li><NavLink to="/empresa/propostas" className="nav-link text-white">Ver Propostas</NavLink></li>
+          <li><NavLink to="/empresa/propostas/add" className="nav-link text-white">Adicionar Propostas</NavLink></li>
           
         </ul>
         <hr className="m-0" />
