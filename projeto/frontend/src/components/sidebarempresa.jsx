@@ -11,7 +11,7 @@ export default function SideBarEmpresa({ visible, onClose }) {
   const location = useLocation();
 
   // Só mostra a sidebar se a rota começar por "/estudante"
-  if (!location.pathname.startsWith("/empresa" || "/empresas ")) return null;
+  //if (!location.pathname.startsWith("/empresa" || "/empresas ")) return null;
 
   useEffect(() => {
     setUserName(localStorage.getItem("nome") || "");
