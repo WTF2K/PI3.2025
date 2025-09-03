@@ -8,10 +8,12 @@ import {
   faMapMarker,
   faAt,
   faPhone,
+  faChartBar,
 } from "@fortawesome/free-solid-svg-icons";
 
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 import SideBar from "../../components/sidebarempresa";
 import Navbar from "../../components/navbar";
@@ -24,20 +26,56 @@ function InicioEmpresa() {
   const topRef = useRef(null);
   const [DataPropostas, setDataPropostas] = useState([]);
   const [selectedDetails, setSelectedDetails] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Verificar se o utilizador está autenticado
+    const token = localStorage.getItem("token");
+    const iduser = localStorage.getItem("iduser");
+    const idempresa = localStorage.getItem("idempresa");
+    const nome = localStorage.getItem("nome");
+    const profile = localStorage.getItem("profile");
+    
+    if (!token || !iduser) {
+      navigate("/");
+      return;
+    }
+    
+    // Verificar se é empresa (tipoutilizador = 3)
+    const userData = {
+      iduser: iduser,
+      idempresa: idempresa,
+      nome: nome,
+      tipoutilizador: 3 // Empresa
+    };
+    
+    setUserData(userData);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!userData) return;
     fetchData();
-  }, []);
+  }, [userData]);
 
   function fetchData() {
     axios
-  .get("http://localhost:3000/api/propostas/")
-  .then((res) => {
-    setDataPropostas(res.data); // res.data já é o array de propostas
-  })
-  .catch((error) => {
-    alert("Erro de ligação à API: " + error.message);
-  });
+      .get(`http://localhost:3000/api/propostas/empresa/${userData?.idempresa}/ativas`)
+      .then((res) => {
+        setDataPropostas(res.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Erro de ligação à API:", error);
+        setLoading(false);
+      });
+  }
+
+  if (!userData) return null;
+
+  if (loading) {
+    return <div className="text-center mt-5">Carregando propostas...</div>;
   }
 
   return (
@@ -53,6 +91,20 @@ function InicioEmpresa() {
               <div className="container-fluid main-content d-flex align-items-center justify-content-center">
                 <div className="d-flex flex-column">
                   <div className="inicio-admin">
+                    {/* Banner de boas-vindas e dashboard */}
+                    <div className="mb-4 p-3 rounded" style={{ background: "#f8f9fa", border: "1px solid #314B66" }}>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div>
+                          <h4>Bem-vindo, {userData?.nome || 'Empresa'}!</h4>
+                          <p className="mb-0">Gerencie suas propostas de emprego e acompanhe o progresso.</p>
+                        </div>
+                        <Link to="/empresa/dashboard" className="btn btn-primary">
+                          <FontAwesomeIcon icon={faChartBar} className="me-2" />
+                          Ver Dashboard
+                        </Link>
+                      </div>
+                    </div>
+
                     {/* Search bar */}
                     <div className="search-box my-4">
                       <div className="d-flex flex-row">
@@ -161,22 +213,31 @@ function InicioEmpresa() {
 
                     {/* Cards com os dados reais */}
                     <div className="cards-wrapper d-flex flex-wrap gap-4 justify-content-center">
-                      {DataPropostas.map((data, index) => (
-                        <div className="card-component" key={index}>
-                          <Card
-                            empresa={data.nome || "Empresa"}
-                            localizacao={data.localizacao}
-                            dataSubmissao={data.data_submissao}
-                            categoria={data.categoria}
-                            vaga={data.vaga}
-                            imagem={Logo}
-                            onViewDetails={() => {
-                              setSelectedDetails(data);
-                              topRef.current?.scrollIntoView({ behavior: "smooth" });
-                            }}
-                          />
+                      {DataPropostas.length === 0 ? (
+                        <div className="text-center w-100">
+                          <p>Nenhuma proposta ativa encontrada.</p>
+                          <Link to="/empresa/propostas/add" className="btn btn-primary">
+                            Criar Primeira Proposta
+                          </Link>
                         </div>
-                      ))}
+                      ) : (
+                        DataPropostas.map((data, index) => (
+                          <div className="card-component" key={index}>
+                            <Card
+                              empresa={data.nome || "Empresa"}
+                              localizacao={data.localizacao}
+                              dataSubmissao={data.data_submissao}
+                              categoria={data.categoria}
+                              vaga={data.vaga}
+                              imagem={Logo}
+                              onViewDetails={() => {
+                                setSelectedDetails(data);
+                                topRef.current?.scrollIntoView({ behavior: "smooth" });
+                              }}
+                            />
+                          </div>
+                        ))
+                      )}
                     </div>
                     <br />
                   </div>

@@ -19,6 +19,11 @@ import {
   faMapMarker,
   faAt,
   faPhone,
+  faToggleOn,
+  faToggleOff,
+  faRotateLeft,
+  faEye,
+  faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
 
 function PropostasEmpresa() {
@@ -26,6 +31,8 @@ function PropostasEmpresa() {
   const [selectedDetails, setSelectedDetails] = useState(null);
   const [propostas, setPropostas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('todas'); // 'todas', 'ativas', 'inativas', 'atribuidas'
+  const [searchTerm, setSearchTerm] = useState('');
 
   // NOVO: estado para guardar dados do utilizador e navegar
   const [userData, setUserData] = useState(null);
@@ -46,17 +53,27 @@ function PropostasEmpresa() {
 
   // NOVO: validação do utilizador no carregamento do componente
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (!user) {
+    // Verificar se o utilizador está autenticado
+    const token = localStorage.getItem("token");
+    const iduser = localStorage.getItem("iduser");
+    const idempresa = localStorage.getItem("idempresa");
+    const nome = localStorage.getItem("nome");
+    const profile = localStorage.getItem("profile");
+    
+    if (!token || !iduser) {
       navigate("/"); // não está logado, manda para /
       return;
     }
-    const userParsed = JSON.parse(user);
-    if (userParsed.tipoutilizador !== 3) {
-      navigate("/"); // não é empresa, manda para /
-      return;
-    }
-    setUserData(userParsed);
+    
+    // Verificar se é empresa (tipoutilizador = 3)
+    const userData = {
+      iduser: iduser,
+      idempresa: idempresa,
+      nome: nome,
+      tipoutilizador: 3 // Empresa
+    };
+    
+    setUserData(userData);
   }, [navigate]);
 
   useEffect(() => {
@@ -65,8 +82,39 @@ function PropostasEmpresa() {
 
     const fetchPropostas = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/propostas");
-        setPropostas(response.data);
+        let url = `http://localhost:3000/api/propostas/empresa/${userData.idempresa}`;
+        
+        // Aplicar filtros baseados no estado
+        switch (filter) {
+          case 'ativas':
+            url = `http://localhost:3000/api/propostas/empresa/${userData.idempresa}/ativas`;
+            break;
+          case 'atribuidas':
+            url = `http://localhost:3000/api/propostas/empresa/${userData.idempresa}/atribuidas`;
+            break;
+          default:
+            // 'todas' e 'inativas' usam a mesma URL, filtramos depois
+            break;
+        }
+        
+        const response = await axios.get(url);
+        let propostasData = response.data;
+        
+        // Filtrar propostas inativas se necessário
+        if (filter === 'inativas') {
+          propostasData = propostasData.filter(p => !p.ativa);
+        }
+        
+        // Aplicar filtro de pesquisa
+        if (searchTerm) {
+          propostasData = propostasData.filter(p => 
+            p.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.categoria?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.localizacao?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+        
+        setPropostas(propostasData);
       } catch (error) {
         console.error("Erro ao buscar propostas:", error);
       } finally {
@@ -74,7 +122,35 @@ function PropostasEmpresa() {
       }
     };
     fetchPropostas();
-  }, [userData]);
+  }, [userData, filter, searchTerm]);
+
+  // NOVO: Função para ativar/desativar proposta
+  const handleToggleStatus = async (idproposta, currentStatus) => {
+    try {
+      const response = await axios.put(`http://localhost:3000/api/propostas/${idproposta}/toggle-status`);
+      if (response.status === 200) {
+        alert(response.data.message);
+        // Recarregar propostas
+        window.location.reload();
+      }
+    } catch (error) {
+      alert("Erro ao alterar status: " + (error.response?.data?.message || error.message));
+    }
+  };
+
+  // NOVO: Função para reativar proposta
+  const handleReativar = async (idproposta) => {
+    try {
+      const response = await axios.put(`http://localhost:3000/api/propostas/${idproposta}/reativar`);
+      if (response.status === 200) {
+        alert(response.data.message);
+        // Recarregar propostas
+        window.location.reload();
+      }
+    } catch (error) {
+      alert("Erro ao reativar proposta: " + (error.response?.data?.message || error.message));
+    }
+  };
 
   // NOVO: enquanto userData é null, não renderiza nada (loading interno)
   if (!userData) {
@@ -93,23 +169,25 @@ function PropostasEmpresa() {
             <SideBar />
           </div>
           <div className="col-md-9 col-sm-12">
-            <Navbar title={"Propostas"} />
+            <Navbar title={"Minhas Propostas"} />
             <div className="d-flex flex-grow-1">
               <div className="container-fluid main-content d-flex justify-content-center">
                 <div className="d-flex flex-column">
                   <div className="inicio-admin">
+                    {/* Filtros e pesquisa */}
                     <div className="search-box my-4">
                       <div className="d-flex flex-row">
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar propostas..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
                               borderBottomRightRadius: "0",
                             }}
-                            // Podes implementar filtro depois aqui
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                           />
                         </div>
                         <div className="d-flex flex-row justify-content-between">
@@ -124,6 +202,40 @@ function PropostasEmpresa() {
                             </button>
                           </div>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Filtros de status */}
+                    <div className="mb-3">
+                      <div className="btn-group" role="group">
+                        <button
+                          type="button"
+                          className={`btn ${filter === 'todas' ? 'btn-primary' : 'btn-outline-primary'}`}
+                          onClick={() => setFilter('todas')}
+                        >
+                          Todas
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${filter === 'ativas' ? 'btn-success' : 'btn-outline-success'}`}
+                          onClick={() => setFilter('ativas')}
+                        >
+                          Ativas
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${filter === 'inativas' ? 'btn-warning' : 'btn-outline-warning'}`}
+                          onClick={() => setFilter('inativas')}
+                        >
+                          Inativas
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${filter === 'atribuidas' ? 'btn-info' : 'btn-outline-info'}`}
+                          onClick={() => setFilter('atribuidas')}
+                        >
+                          Atribuídas
+                        </button>
                       </div>
                     </div>
 
@@ -142,6 +254,7 @@ function PropostasEmpresa() {
                               <Link
                                 to={`/empresas/propostas/${selectedDetails.idproposta}`}
                                 className="text-warning"
+                                title="Editar proposta"
                               >
                                 <FontAwesomeIcon
                                   className="me-2"
@@ -149,12 +262,35 @@ function PropostasEmpresa() {
                                   data-tooltip-id="tooltip-info-2"
                                 />
                               </Link>
-                              <Link to={"edit"} className="text-danger">
-                                <FontAwesomeIcon
-                                  icon={faTrashCan}
-                                  data-tooltip-id="tooltip-info-3"
-                                />
-                              </Link>
+                              
+                              {/* Botões de ação baseados no status */}
+                              {selectedDetails.ativa ? (
+                                <button
+                                  className="btn btn-sm btn-outline-danger me-2"
+                                  onClick={() => handleToggleStatus(selectedDetails.idproposta, true)}
+                                  title="Desativar proposta"
+                                >
+                                  <FontAwesomeIcon icon={faToggleOff} />
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-sm btn-outline-success me-2"
+                                  onClick={() => handleToggleStatus(selectedDetails.idproposta, false)}
+                                  title="Ativar proposta"
+                                >
+                                  <FontAwesomeIcon icon={faToggleOn} />
+                                </button>
+                              )}
+                              
+                              {!selectedDetails.ativa && !selectedDetails.atribuida_estudante && (
+                                <button
+                                  className="btn btn-sm btn-outline-primary me-2"
+                                  onClick={() => handleReativar(selectedDetails.idproposta)}
+                                  title="Reativar proposta"
+                                >
+                                  <FontAwesomeIcon icon={faRotateLeft} />
+                                </button>
+                              )}
                             </div>
                             <div className="d-flex justify-content-md-end justify-content-center">
                               <button
@@ -176,12 +312,24 @@ function PropostasEmpresa() {
                               />
                             </div>
                             <div className="col-md-9 col-sm-12">
-                              <h1
-                                className="card-title fw-bolder"
-                                style={{ color: "#314B66" }}
-                              >
-                                {selectedDetails.empresa?.nome || "Empresa"}
-                              </h1>
+                              <div className="d-flex justify-content-between align-items-start">
+                                <h1
+                                  className="card-title fw-bolder"
+                                  style={{ color: "#314B66" }}
+                                >
+                                  {selectedDetails.empresa?.nome || "Empresa"}
+                                </h1>
+                                <div className="d-flex gap-2">
+                                  {selectedDetails.ativa ? (
+                                    <span className="badge bg-success">Ativa</span>
+                                  ) : (
+                                    <span className="badge bg-warning">Inativa</span>
+                                  )}
+                                  {selectedDetails.atribuida_estudante && (
+                                    <span className="badge bg-info">Atribuída</span>
+                                  )}
+                                </div>
+                              </div>
                               <div className="fs-5 d-md-flex flex-row  align-items-center gap-4">
                                 <p>
                                   <b className="me-2">
@@ -250,6 +398,15 @@ function PropostasEmpresa() {
                                 <br />
                                 {selectedDetails.descricao}
                               </p>
+                              
+                              {/* Informações de atribuição */}
+                              {selectedDetails.atribuida_estudante && (
+                                <div className="mt-3 p-3 bg-light rounded">
+                                  <h5>Informações de Atribuição</h5>
+                                  <p><strong>Atribuída em:</strong> {selectedDetails.data_atribuicao ? new Date(selectedDetails.data_atribuicao).toLocaleDateString() : 'Data não disponível'}</p>
+                                  <p><strong>ID do Estudante:</strong> {selectedDetails.id_estudante_atribuido || 'Não especificado'}</p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -258,7 +415,12 @@ function PropostasEmpresa() {
 
                     <div className="mt-3 cards-wrapper d-flex flex-wrap gap-0 justify-content-center">
                       {propostas.length === 0 && (
-                        <p>Nenhuma proposta encontrada.</p>
+                        <div className="text-center w-100">
+                          <p>Nenhuma proposta encontrada para os filtros selecionados.</p>
+                          <Link to="/empresa/propostas/add" className="btn btn-primary">
+                            Criar Nova Proposta
+                          </Link>
+                        </div>
                       )}
                       {propostas.map((data, index) => (
                         <div className="card-component w-100" key={index}>

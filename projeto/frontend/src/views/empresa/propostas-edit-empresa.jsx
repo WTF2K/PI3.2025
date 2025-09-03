@@ -48,13 +48,27 @@ function PropostasEditEmpresa() {
 
   // Verificação do utilizador autenticado e tipo
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user || user.tipoutilizador !== 3) {
+    // Verificar se o utilizador está autenticado
+    const token = localStorage.getItem("token");
+    const iduser = localStorage.getItem("iduser");
+    const idempresa = localStorage.getItem("idempresa");
+    const nome = localStorage.getItem("nome");
+    const profile = localStorage.getItem("profile");
+    
+    if (!token || !iduser) {
       navigate("/");
-    } else {
-      setUserData(user);
+      return;
     }
+    
+    // Verificar se é empresa (tipoutilizador = 3)
+    const userData = {
+      iduser: iduser,
+      idempresa: idempresa,
+      nome: nome,
+      tipoutilizador: 3 // Empresa
+    };
+    
+    setUserData(userData);
   }, [navigate]);
 
   useEffect(() => {

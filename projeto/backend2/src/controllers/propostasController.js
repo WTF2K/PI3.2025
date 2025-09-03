@@ -19,6 +19,82 @@ exports.getAll = async (req, res) => {
   }
 };
 
+// NOVO: Obter propostas por empresa
+exports.getByEmpresa = async (req, res) => {
+  try {
+    const { idempresa } = req.params;
+    
+    const propostasEmpresa = await propostas.findAll({
+      where: { idempresa: idempresa },
+      include: [
+        {
+          model: empresas,
+          as: 'empresa',
+          attributes: ['nome']
+        }
+      ],
+      order: [['data_submissao', 'DESC']]
+    });
+    
+    res.json(propostasEmpresa);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// NOVO: Obter propostas ativas por empresa
+exports.getAtivasByEmpresa = async (req, res) => {
+  try {
+    const { idempresa } = req.params;
+    
+    const propostasAtivas = await propostas.findAll({
+      where: { 
+        idempresa: idempresa,
+        ativa: true,
+        atribuida_estudante: false
+      },
+      include: [
+        {
+          model: empresas,
+          as: 'empresa',
+          attributes: ['nome']
+        }
+      ],
+      order: [['data_submissao', 'DESC']]
+    });
+    
+    res.json(propostasAtivas);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// NOVO: Obter propostas atribuídas por empresa
+exports.getAtribuidasByEmpresa = async (req, res) => {
+  try {
+    const { idempresa } = req.params;
+    
+    const propostasAtribuidas = await propostas.findAll({
+      where: { 
+        idempresa: idempresa,
+        atribuida_estudante: true
+      },
+      include: [
+        {
+          model: empresas,
+          as: 'empresa',
+          attributes: ['nome']
+        }
+      ],
+      order: [['data_atribuicao', 'DESC']]
+    });
+    
+    res.json(propostasAtribuidas);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.getById = async (req, res) => {
   try {
     const proposta = await propostas.findByPk(req.params.id);
@@ -28,7 +104,6 @@ exports.getById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 exports.create = async (req, res) => {
   try {
@@ -67,7 +142,9 @@ exports.create = async (req, res) => {
       data_submissao,
       nome,
       descricao,
-      vaga
+      vaga,
+      ativa: true,
+      atribuida_estudante: false
     });
 
     res.status(201).json(novaProposta);
@@ -134,6 +211,132 @@ exports.update = async (req, res) => {
   }
 };
 
+// NOVO: Ativar/Desativar proposta
+exports.toggleStatus = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de proposta inválido." });
+    }
+
+    const proposta = await propostas.findByPk(id);
+    if (!proposta) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    // Se a proposta está atribuída a um estudante, não pode ser desativada
+    if (proposta.atribuida_estudante && proposta.ativa) {
+      return res.status(400).json({ 
+        message: "Não é possível desativar uma proposta que foi atribuída a um estudante." 
+      });
+    }
+
+    const novoStatus = !proposta.ativa;
+    
+    const [updated] = await propostas.update(
+      { ativa: novoStatus },
+      { where: { idproposta: id } }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    res.status(200).json({ 
+      message: novoStatus ? "Proposta ativada com sucesso." : "Proposta desativada com sucesso.",
+      ativa: novoStatus
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao alterar status da proposta: " + err.message });
+  }
+};
+
+// NOVO: Tornar proposta disponível novamente (reativar)
+exports.reativar = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de proposta inválido." });
+    }
+
+    const proposta = await propostas.findByPk(id);
+    if (!proposta) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    // Só pode reativar se não estiver atribuída a um estudante
+    if (proposta.atribuida_estudante) {
+      return res.status(400).json({ 
+        message: "Não é possível reativar uma proposta que foi atribuída a um estudante." 
+      });
+    }
+
+    const [updated] = await propostas.update(
+      { 
+        ativa: true,
+        atribuida_estudante: false,
+        id_estudante_atribuido: null,
+        data_atribuicao: null
+      },
+      { where: { idproposta: id } }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    res.status(200).json({ message: "Proposta reativada com sucesso." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao reativar proposta: " + err.message });
+  }
+};
+
+// NOVO: Atribuir proposta a um estudante
+exports.atribuirEstudante = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { id_estudante } = req.body;
+    
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de proposta inválido." });
+    }
+
+    if (!id_estudante || isNaN(id_estudante)) {
+      return res.status(400).json({ error: "ID do estudante inválido." });
+    }
+
+    const proposta = await propostas.findByPk(id);
+    if (!proposta) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    if (!proposta.ativa) {
+      return res.status(400).json({ message: "Não é possível atribuir uma proposta inativa." });
+    }
+
+    if (proposta.atribuida_estudante) {
+      return res.status(400).json({ message: "Esta proposta já foi atribuída a um estudante." });
+    }
+
+    const [updated] = await propostas.update(
+      { 
+        atribuida_estudante: true,
+        id_estudante_atribuido: id_estudante,
+        data_atribuicao: new Date().toISOString().split('T')[0],
+        ativa: false // Desativa automaticamente quando atribuída
+      },
+      { where: { idproposta: id } }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    res.status(200).json({ message: "Proposta atribuída ao estudante com sucesso." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao atribuir proposta: " + err.message });
+  }
+};
 
 exports.delete = async (req, res) => {
   try {

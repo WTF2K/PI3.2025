@@ -85,20 +85,34 @@ function Login() {
       }
       localStorage.setItem("nome", data.user.nome || "");
 
+      console.log("Login successful, navigating to:", data.user.tipo);
+      console.log("LocalStorage after login:", {
+        token: localStorage.getItem("token"),
+        iduser: localStorage.getItem("iduser"),
+        idempresa: localStorage.getItem("idempresa"),
+        nome: localStorage.getItem("nome"),
+        profile: localStorage.getItem("profile")
+      });
+
       switch (data.user.tipo) {
         case 4:
+          console.log("Navigating to estudante dashboard");
           navigate("/estudante/dashboard");
           break;
         case 3:
-          navigate("/empresa/dashboard");
+          console.log("Navigating to empresa debug page");
+          navigate("/empresa/debug");
           break;
         case 2:
+          console.log("Navigating to gestor dashboard");
           navigate("/gestor/dashboard2");
           break;
         case 1:
+          console.log("Navigating to admin dashboard");
           navigate("/adm/dashboard");
           break;
         default:
+          console.log("Unknown user type, navigating to home");
           navigate("/");
           break;
       }

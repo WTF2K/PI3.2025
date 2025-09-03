@@ -83,6 +83,28 @@ module.exports = function(sequelize, DataTypes) {
     validado_por: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    ativa: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true
+    },
+    atribuida_estudante: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false
+    },
+    id_estudante_atribuido: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'utilizadores',
+        key: 'iduser'
+      }
+    },
+    data_atribuicao: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
     }
   }, {
     sequelize,

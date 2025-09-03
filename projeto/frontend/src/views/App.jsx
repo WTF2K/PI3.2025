@@ -22,9 +22,11 @@ import InicioEstudante from "./estudante/inicio-estudante";
 import PerfilEmpresa from "./perfil-empresa";
 import EditarEmpresa from "./editar-empresa";
 import InicioEmpresa from "./empresa/inicio-empresa";
+import DashboardEmpresa from "./empresa/dashboard-empresa";
 import PropostasEmpresa from "./empresa/propostas-list-empresa";
 import PropostasADDEmpresa from "./empresa/propostas-add-empresa";
 import PropostasEditEmpresa from "./empresa/propostas-edit-empresa";
+import DebugEmpresa from "./empresa/debug-empresa";
 {
   /* Inicio GESTOR ⇩*/
 }
@@ -71,11 +73,15 @@ function App() {
         <Route path="/estudante/:id" element={<EstudantesEDITPerfilestudante />} />
         <Route path="/estudante/dashboard" element={<InicioEstudante />} />
         {/* Empresa */}
+        <Route path="/empresa/inicio" element={<InicioEmpresa />} />
+        <Route path="/empresa/dashboard" element={<DashboardEmpresa />} />
         <Route path="/empresa/:id" element={<PerfilEmpresa />} />
         <Route path="/empresa/:id/editar" element={<EditarEmpresa />} />
-        <Route path="/empresa/dashboard" element={<InicioEmpresa />} />
         <Route path="/empresa/propostas" element={<PropostasEmpresa />} />
         <Route path="/empresa/propostas/add" element={<PropostasADDEmpresa />} />
+        <Route path="/empresas/propostas/:id" element={<PropostasEditEmpresa />} />
+        <Route path="/empresas/propostas/:id/edit" element={<PropostasEditEmpresa />} />
+        <Route path="/empresa/debug" element={<DebugEmpresa />} />
         {/* Gestor */}
         
         <Route path="/gestor/dashboard2" element={<Dashboard2Gestor />} />
