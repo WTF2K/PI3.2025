@@ -247,6 +247,21 @@ exports.getEstudantesPedidoRemocao = async (req, res) => {
   }
 };
 
+// Obter estudantes inativos
+exports.getEstudantesInativos = async (req, res) => {
+  try {
+    const estudantes = await utilizadores.findAll({
+      where: { 
+        idtuser: 4,
+        ativo: false
+      }
+    });
+    res.json(estudantes);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao obter estudantes inativos: " + err.message });
+  }
+};
+
 // Aprovar pedido de remoção de estudante
 exports.aprovarRemocao = async (req, res) => {
   try {
@@ -294,5 +309,55 @@ exports.rejeitarPedidoRemocao = async (req, res) => {
     res.status(200).json({ message: "Pedido de remoção rejeitado com sucesso." });
   } catch (err) {
     res.status(500).json({ error: "Erro ao rejeitar pedido: " + err.message });
+  }
+};
+
+// Estudante pede remoção (marca pedido_remocao = true)
+exports.pedirRemocao = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de utilizador inválido." });
+    }
+
+    const [updated] = await utilizadores.update({
+      pedido_remocao: true
+    }, {
+      where: { iduser: id, idtuser: 4 }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Estudante não encontrado." });
+    }
+
+    res.status(200).json({ message: "Pedido de remoção enviado." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao enviar pedido: " + err.message });
+  }
+};
+
+// Gestor reativa/ativa conta do estudante
+exports.ativarConta = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de utilizador inválido." });
+    }
+
+    const [updated] = await utilizadores.update({
+      ativo: true,
+      pedido_remocao: false,
+      data_remocao: null
+    }, {
+      where: { iduser: id, idtuser: 4 }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Estudante não encontrado." });
+    }
+
+    res.status(200).json({ message: "Conta do estudante ativada." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao ativar conta: " + err.message });
   }
 };

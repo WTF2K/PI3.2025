@@ -82,6 +82,7 @@ function PropostasEmpresa() {
 
     const fetchPropostas = async () => {
       try {
+        const token = localStorage.getItem("token");
         let url = `http://localhost:3000/api/propostas/empresa/${userData.idempresa}`;
         
         // Aplicar filtros baseados no estado
@@ -97,7 +98,7 @@ function PropostasEmpresa() {
             break;
         }
         
-        const response = await axios.get(url);
+        const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
         let propostasData = response.data;
         
         // Filtrar propostas inativas se necessário
@@ -127,7 +128,12 @@ function PropostasEmpresa() {
   // NOVO: Função para ativar/desativar proposta
   const handleToggleStatus = async (idproposta, currentStatus) => {
     try {
-      const response = await axios.put(`http://localhost:3000/api/propostas/${idproposta}/toggle-status`);
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `http://localhost:3000/api/propostas/${idproposta}/toggle-status`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       if (response.status === 200) {
         alert(response.data.message);
         // Recarregar propostas
@@ -141,7 +147,12 @@ function PropostasEmpresa() {
   // NOVO: Função para reativar proposta
   const handleReativar = async (idproposta) => {
     try {
-      const response = await axios.put(`http://localhost:3000/api/propostas/${idproposta}/reativar`);
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `http://localhost:3000/api/propostas/${idproposta}/reativar`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       if (response.status === 200) {
         alert(response.data.message);
         // Recarregar propostas

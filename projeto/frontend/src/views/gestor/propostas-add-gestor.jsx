@@ -1,7 +1,7 @@
 import "../../custom.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 import SideBar from "../../components/sidebargestor";
@@ -22,6 +22,27 @@ function PropostasADDGestor() {
     idtcontrato: "",
   });
 
+  // Lista de empresas disponíveis para o gestor escolher
+  const [empresas, setEmpresas] = useState([]);
+  const [empresaSelecionada, setEmpresaSelecionada] = useState({ idempresa: "", iduser: "" });
+
+  // Carregar empresas (idempresa, nome) para o dropdown
+  useEffect(() => {
+    const fetchEmpresas = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:3000/api/empresas", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setEmpresas(res.data || []);
+      } catch (error) {
+        console.error("Erro a carregar empresas:", error);
+        alert("Não foi possível carregar a lista de empresas.");
+      }
+    };
+    fetchEmpresas();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -32,6 +53,11 @@ function PropostasADDGestor() {
 
     const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
 
+    if (!empresaSelecionada.idempresa || !empresaSelecionada.iduser) {
+      alert("Selecione uma empresa válida.");
+      return;
+    }
+
     const payload = {
       nome: formData.nome,
       categoria: formData.categoria,
@@ -41,16 +67,17 @@ function PropostasADDGestor() {
       idtproposta: parseInt(formData.idtproposta),
       idtcontrato: parseInt(formData.idtcontrato),
       data_submissao: today,
-      iduser: 1,     // <- Substitui conforme o ID do utilizador autenticado
-      idempresa: 1,  // <- Substitui conforme a empresa associada
-      idtuser: 1     // <- Substitui conforme necessário
+      // Submeter em nome da empresa selecionada
+      iduser: parseInt(empresaSelecionada.iduser),
+      idempresa: parseInt(empresaSelecionada.idempresa),
+      idtuser: 3     // Empresa
     };
 
     try {
       const res = await axios.post("http://localhost:3000/api/propostas", payload);
       if (res.status === 201 || res.data) {
         alert("Proposta adicionada com sucesso!");
-        navigate("/gestor/dashboard");
+        navigate("/gestor/inicio");
       } else {
         alert("Erro ao adicionar proposta.");
       }
@@ -98,6 +125,30 @@ function PropostasADDGestor() {
                             </div>
                           </div>
                           <div className="col-md-9 col-sm-12">
+                            {/* Empresa */}
+                            <div className="mb-3">
+                              <label className="form-label">Empresa</label>
+                              <select
+                                className="form-control form_input"
+                                value={empresaSelecionada.idempresa}
+                                onChange={(e) => {
+                                  const idemp = e.target.value;
+                                  const emp = empresas.find((x) => String(x.idempresa) === String(idemp));
+                                  setEmpresaSelecionada({ idempresa: idemp, iduser: emp ? emp.iduser : "" });
+                                }}
+                                required
+                              >
+                                <option value="">Selecione a empresa...</option>
+                                {empresas.map((emp) => (
+                                  <option key={emp.idempresa} value={emp.idempresa}>
+                                    {emp.nome} (ID {emp.idempresa})
+                                  </option>
+                                ))}
+                              </select>
+                              <small className="text-muted">
+                                Esta proposta será submetida em nome da empresa selecionada.
+                              </small>
+                            </div>
                             {/* Nome */}
                             <div className="mb-3">
                               <label className="form-label">Título da Proposta</label>

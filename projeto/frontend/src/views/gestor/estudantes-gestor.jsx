@@ -153,17 +153,17 @@ function EstudantesGestor() {
           <div className="col-md-3 col-sm-1">
             <SideBar />
           </div>
-          <div className="col-md-9 col-sm-12">
+          <div className="col-md-9 col-sm-12 ">
             <Navbar title={"Gestão de Estudantes"} />
             <div className="d-flex flex-grow-1">
               <div className="container-fluid main-content">
                 <div className="row">
                   <div className="col-12">
-                    <div className="card border-0 shadow-sm">
+                    <div className="card border-0 shadow-sm w-100">
                       <div className="card-header bg-white">
                         <div className="d-flex justify-content-between align-items-center">
                           <h5 className="mb-0">
-                            <FontAwesomeIcon icon={faUsers} className="me-2" />
+                            <FontAwesomeIcon icon={faUsers} className="me-20" />
                             Lista de Estudantes
                           </h5>
                           <div className="d-flex gap-2">

@@ -25,6 +25,7 @@ function InicioEstudante() {
   const [DataPropostas, setDataPropostas] = useState([]);
   const [selectedDetails, setSelectedDetails] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [pedidoLoading, setPedidoLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -42,6 +43,24 @@ function InicioEstudante() {
       .catch((error) => {
         alert("Erro de ligação à API: " + error.message);
       });
+  }
+
+  async function pedirRemocaoConta() {
+    try {
+      setPedidoLoading(true);
+      const token = localStorage.getItem("token");
+      const iduser = localStorage.getItem("iduser");
+      await axios.put(
+        `http://localhost:3000/api/utilizadores/${iduser}/pedir-remocao`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Pedido de remoção enviado ao gestor.");
+    } catch (err) {
+      alert("Erro ao enviar pedido: " + (err.response?.data?.error || err.message));
+    } finally {
+      setPedidoLoading(false);
+    }
   }
 
   const filteredPropostas = useMemo(() => {
@@ -74,6 +93,15 @@ function InicioEstudante() {
               <div className="container-fluid main-content d-flex align-items-center justify-content-center">
                 <div className="d-flex flex-column">
                   <div className="inicio-admin">
+                    <div className="mb-3 d-flex justify-content-end">
+                      <button
+                        className="btn btn-outline-danger"
+                        onClick={pedirRemocaoConta}
+                        disabled={pedidoLoading}
+                      >
+                        {pedidoLoading ? "A enviar..." : "Pedir desativação da conta"}
+                      </button>
+                    </div>
                     {/* Search bar */}
                     <div className="search-box my-4">
                       <div className="d-flex flex-row">

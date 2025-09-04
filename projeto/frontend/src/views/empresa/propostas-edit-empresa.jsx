@@ -74,7 +74,8 @@ function PropostasEditEmpresa() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/propostas/${id}`);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`http://localhost:3000/api/propostas/${id}`, { headers: { Authorization: `Bearer ${token}` } });
         const data = res.data;
 
         setFormData({
@@ -116,7 +117,8 @@ function PropostasEditEmpresa() {
     };
 
     try {
-      const res = await axios.put(`http://localhost:3000/api/propostas/${id}`, payload);
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`http://localhost:3000/api/propostas/${id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
       if (res.status >= 200 && res.status < 300) {
         alert("Proposta editada com sucesso!");
         navigate("/empresa/propostas");

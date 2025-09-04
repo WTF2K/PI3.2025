@@ -36,7 +36,15 @@ function InicioGestor() {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
-        setDataPropostas(res.data);
+        const fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+        const recentes = (res.data || []).filter((p) => {
+          if (!p?.data_submissao) return false;
+          const d = new Date(p.data_submissao);
+          // proteger datas inválidas
+          return !isNaN(d.getTime()) && d >= fiveDaysAgo;
+        });
+        setDataPropostas(recentes);
       })
       .catch((error) => {
         alert("Erro de ligação à API: " + error.message);
@@ -51,7 +59,7 @@ function InicioGestor() {
             <SideBar />
           </div>
           <div className="col-md-9 col-sm-12">
-            <Navbar title={"Início"} />
+            <Navbar title={"Propostas recentes"} />
             <div className="d-flex flex-grow-1">
               <div className="container-fluid main-content d-flex align-items-center justify-content-center">
                 <div className="d-flex flex-column">

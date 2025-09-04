@@ -60,8 +60,12 @@ function InicioEmpresa() {
   }, [userData]);
 
   function fetchData() {
+    const token = localStorage.getItem("token");
     axios
-      .get(`http://localhost:3000/api/propostas/empresa/${userData?.idempresa}/ativas`)
+      .get(
+        `http://localhost:3000/api/propostas/empresa/${userData?.idempresa}/ativas`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
       .then((res) => {
         setDataPropostas(res.data);
         setLoading(false);

@@ -10,6 +10,8 @@ import {
   faChartLine,
   faCalendarAlt,
   faMapMarkerAlt,
+  faUserSlash,
+  faUserCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 import React, { useEffect, useState } from "react";
@@ -32,9 +34,11 @@ function Dashboard2Gestor() {
 
   const [recentPropostas, setRecentPropostas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pedidosRemocao, setPedidosRemocao] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
+    fetchPedidosRemocao();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -100,6 +104,53 @@ function Dashboard2Gestor() {
     }
   };
 
+  const fetchPedidosRemocao = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "http://localhost:3000/api/utilizadores/estudantes/pedidos-remocao",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPedidosRemocao(res.data || []);
+    } catch (error) {
+      console.error("Erro ao carregar pedidos de remoção:", error);
+    }
+  };
+
+  const aprovarRemocao = async (iduser) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:3000/api/utilizadores/${iduser}/aprovar-remocao`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await fetchPedidosRemocao();
+      // Atualiza cards
+      await fetchDashboardData();
+      alert("Conta do estudante desativada.");
+    } catch (err) {
+      alert("Erro ao aprovar remoção: " + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const rejeitarRemocao = async (iduser) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:3000/api/utilizadores/${iduser}/rejeitar-remocao`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await fetchPedidosRemocao();
+      // Atualiza cards
+      await fetchDashboardData();
+      alert("Pedido rejeitado.");
+    } catch (err) {
+      alert("Erro ao rejeitar pedido: " + (err.response?.data?.error || err.message));
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case true:
@@ -145,7 +196,7 @@ function Dashboard2Gestor() {
             <SideBar />
           </div>
           <div className="col-md-9 col-sm-12">
-            <Navbar title={"Dashboard do Gestor"} />
+            <Navbar title={"Estatísticas"} />
             <div className="d-flex flex-grow-1">
               <div className="container-fluid main-content">
                 <div className="row">
@@ -284,9 +335,62 @@ function Dashboard2Gestor() {
                     </div>
                   </div>
 
+                  {/* Pedidos de Remoção de Estudantes */}
+                  <div className="col-12 mb-4">
+                    <div className="card border-0 shadow-sm w-100">
+                      <div className="card-header bg-white d-flex align-items-center justify-content-between">
+                        <h5 className="mb-0">Pedidos de Remoção</h5>
+                        <span className="badge bg-secondary">{pedidosRemocao.length}</span>
+                      </div>
+                      <div className="card-body">
+                        {pedidosRemocao.length === 0 ? (
+                          <p className="text-muted mb-0">Sem pedidos pendentes.</p>
+                        ) : (
+                          <div className="table-responsive">
+                            <table className="table table-hover">
+                              <thead>
+                                <tr>
+                                  <th>ID</th>
+                                  <th>Nome</th>
+                                  <th>Email</th>
+                                  <th>Ações</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {pedidosRemocao.map((est) => (
+                                  <tr key={est.iduser}>
+                                    <td>{est.iduser}</td>
+                                    <td>{est.nome}</td>
+                                    <td>{est.email}</td>
+                                    <td>
+                                      <button
+                                        className="btn btn-sm btn-danger me-2"
+                                        title="Desativar conta"
+                                        onClick={() => aprovarRemocao(est.iduser)}
+                                      >
+                                        <FontAwesomeIcon icon={faUserSlash} />
+                                      </button>
+                                      <button
+                                        className="btn btn-sm btn-success"
+                                        title="Rejeitar pedido"
+                                        onClick={() => rejeitarRemocao(est.iduser)}
+                                      >
+                                        <FontAwesomeIcon icon={faUserCheck} />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Propostas Recentes */}
                   <div className="col-12">
-                    <div className="card border-0 shadow-sm">
+                    <div className="card border-0 shadow-sm w-100">
                       <div className="card-header bg-white">
                         <h5 className="mb-0">
                           <FontAwesomeIcon

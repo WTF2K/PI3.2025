@@ -101,7 +101,7 @@ function Login() {
           break;
         case 3:
           console.log("Navigating to empresa debug page");
-          navigate("/empresa/debug");
+          navigate("/empresa/inicio");
           break;
         case 2:
           console.log("Navigating to gestor dashboard");

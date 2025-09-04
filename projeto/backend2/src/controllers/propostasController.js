@@ -4,15 +4,7 @@ const empresas = db.empresas;
 
 exports.getAll = async (req, res) => {
   try {
-    const lista = await propostas.findAll({
-      include: [
-        {
-          model: empresas,
-          as: 'empresa', // nome do alias (vais definir já a seguir na associação)
-          attributes: ['nome'] // só queremos o nome da empresa
-        }
-      ]
-    });
+    const lista = await propostas.findAll();
     res.json(lista);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -26,13 +18,6 @@ exports.getByEmpresa = async (req, res) => {
     
     const propostasEmpresa = await propostas.findAll({
       where: { idempresa: idempresa },
-      include: [
-        {
-          model: empresas,
-          as: 'empresa',
-          attributes: ['nome']
-        }
-      ],
       order: [['data_submissao', 'DESC']]
     });
     
@@ -53,13 +38,6 @@ exports.getAtivasByEmpresa = async (req, res) => {
         ativa: true,
         atribuida_estudante: false
       },
-      include: [
-        {
-          model: empresas,
-          as: 'empresa',
-          attributes: ['nome']
-        }
-      ],
       order: [['data_submissao', 'DESC']]
     });
     
@@ -79,13 +57,6 @@ exports.getAtribuidasByEmpresa = async (req, res) => {
         idempresa: idempresa,
         atribuida_estudante: true
       },
-      include: [
-        {
-          model: empresas,
-          as: 'empresa',
-          attributes: ['nome']
-        }
-      ],
       order: [['data_atribuicao', 'DESC']]
     });
     
@@ -391,14 +362,7 @@ exports.getPendentes = async (req, res) => {
           { validada: false }
         ],
         data_validacao: { [Op.is]: null }
-      },
-      include: [
-        {
-          model: empresas,
-          as: 'empresa',
-          attributes: ['nome']
-        }
-      ]
+      }
     });
     res.json(propostasPendentes);
   } catch (err) {

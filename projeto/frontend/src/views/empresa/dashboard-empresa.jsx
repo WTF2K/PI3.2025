@@ -64,7 +64,11 @@ function DashboardEmpresa() {
     const fetchDashboardData = async () => {
       try {
         // Buscar todas as propostas da empresa
-        const response = await axios.get(`http://localhost:3000/api/propostas/empresa/${userData.idempresa}`);
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `http://localhost:3000/api/propostas/empresa/${userData.idempresa}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         const propostas = response.data;
 
         // Calcular estatísticas
