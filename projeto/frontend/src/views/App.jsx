@@ -99,9 +99,9 @@ function App() {
         <Route path="/adm/dashboard" element={<InicioAdmin />} />
         <Route path="/adm/notifications" element={<NotifAdmin />} />
         <Route path="/adm/propostas" element={<PropostasAdmin />} />
-        <Route path="/adm/propostas/:id" element={<PropostasEDITAdmin />} />
         <Route path="/adm/propostas/add" element={<PropostasADDAdmin />} />
         <Route path="/adm/propostas/validate" element={<PropostasVALAdmin />} />
+        <Route path="/adm/propostas/:id" element={<PropostasEDITAdmin />} />
         <Route path="/adm/estudantes" element={<EstudantesAdmin />} />
         <Route path="/adm/estudantes/validate" element={<EstudantesValidateAdmin />} />
         <Route path="/adm/estudantes/create" element={<EstudantesCreateAdmin />} />

@@ -47,8 +47,8 @@ function PropostasEditAdmin() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!id) {
-          alert("ID da proposta não encontrado");
+        if (!id || id === 'edit' || id === 'add' || id === 'validate') {
+          alert("ID da proposta não encontrado ou inválido");
           return;
         }
         
