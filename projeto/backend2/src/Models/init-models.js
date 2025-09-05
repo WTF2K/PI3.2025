@@ -7,6 +7,7 @@ var _tiponotificacao = require("./tiponotificacao");
 var _tipoproposta = require("./tipoproposta");
 var _tipoutilizador = require("./tipoutilizador");
 var _utilizadores = require("./utilizadores");
+var _favoritos = require("./favoritos");
 
 function initModels(sequelize) {
   var empresas = _empresas(sequelize, DataTypes);
@@ -17,6 +18,7 @@ function initModels(sequelize) {
   var tipoproposta = _tipoproposta(sequelize, DataTypes);
   var tipoutilizador = _tipoutilizador(sequelize, DataTypes);
   var utilizadores = _utilizadores(sequelize, DataTypes);
+  var favoritos = _favoritos(sequelize, DataTypes);
 
   utilizadores.belongsToMany(utilizadores, { as: 'iduser_utilizadores', through: empresas, foreignKey: "idtuser", otherKey: "iduser" });
   utilizadores.belongsToMany(utilizadores, { as: 'idtuser_utilizadores', through: empresas, foreignKey: "iduser", otherKey: "idtuser" });
@@ -42,6 +44,9 @@ function initModels(sequelize) {
   utilizadores.hasMany(tiponotificacao, { as: "tiponotificacaos", foreignKey: "idtuser"});
   tiponotificacao.belongsTo(utilizadores, { as: "iduser_utilizadore", foreignKey: "iduser"});
   utilizadores.hasMany(tiponotificacao, { as: "iduser_tiponotificacaos", foreignKey: "iduser"});
+  favoritos.belongsTo(utilizadores, { as: "idtuser_utilizadore", foreignKey: "idtuser"});
+  utilizadores.hasMany(favoritos, { as: "favoritos", foreignKey: "idtuser"});
+ 
 
   return {
     empresas,
@@ -52,6 +57,7 @@ function initModels(sequelize) {
     tipoproposta,
     tipoutilizador,
     utilizadores,
+    favoritos,
   };
 }
 module.exports = initModels;

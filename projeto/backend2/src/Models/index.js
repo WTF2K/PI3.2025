@@ -30,6 +30,7 @@ db.tiponotificacao = require("./tiponotificacao.js")(sequelize, Sequelize);
 db.tipoproposta = require("./tipoproposta.js")(sequelize, Sequelize);
 db.tipoutilizador = require("./tipoutilizador.js")(sequelize, Sequelize);
 db.utilizadores = require("./utilizadores.js")(sequelize, Sequelize);
+db.favoritos = require("./favoritos.js")(sequelize, Sequelize);
 
 db.empresas.hasMany(db.propostas, {
   foreignKey: 'idempresa',
