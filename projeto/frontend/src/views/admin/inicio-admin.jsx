@@ -36,7 +36,22 @@ function InicioAdmin() {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
-        setDataPropostas(res.data);
+        // Filtrar propostas dos últimos 5 dias
+        const hoje = new Date();
+        const cincoDiasAtras = new Date();
+        cincoDiasAtras.setDate(hoje.getDate() - 5);
+
+        const propostasRecentes = res.data.filter((proposta) => {
+          if (!proposta.data_submissao) return false;
+          
+          const dataSubmissao = new Date(proposta.data_submissao);
+          return dataSubmissao >= cincoDiasAtras && dataSubmissao <= hoje;
+        });
+
+        // Ordenar por data de submissão (mais recentes primeiro)
+        propostasRecentes.sort((a, b) => new Date(b.data_submissao) - new Date(a.data_submissao));
+
+        setDataPropostas(propostasRecentes);
       })
       .catch((error) => {
         alert("Erro de ligação à API: " + error.message);
@@ -51,7 +66,7 @@ function InicioAdmin() {
             <SideBar />
           </div>
           <div className="col-md-9 col-sm-12">
-            <Navbar title={"Início"} />
+            <Navbar title={"Propostas Recentes"} />
             <div className="d-flex flex-grow-1">
               <div className="container-fluid main-content d-flex align-items-center justify-content-center">
                 <div className="d-flex flex-column">
@@ -162,9 +177,31 @@ function InicioAdmin() {
                       </div>
                     )}
 
+                    {/* Indicador de filtro */}
+                    <div className="mb-4">
+                      <div className="alert alert-info d-flex align-items-center">
+                        <FontAwesomeIcon icon={faCalendar} className="me-2" />
+                        <div>
+                          <strong>Propostas dos Últimos 5 Dias</strong>
+                          <br />
+                          <small>Mostrando {DataPropostas.length} proposta{DataPropostas.length !== 1 ? 's' : ''} submetida{DataPropostas.length !== 1 ? 's' : ''} recentemente</small>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Cards com os dados reais */}
                     <div className="cards-wrapper d-flex flex-wrap gap-4 justify-content-center">
-                      {DataPropostas.map((data, index) => (
+                      {DataPropostas.length === 0 ? (
+                        <div className="text-center w-100">
+                          <div className="alert alert-warning">
+                            <FontAwesomeIcon icon={faCalendar} className="me-2" />
+                            <strong>Nenhuma proposta recente</strong>
+                            <br />
+                            Não há propostas submetidas nos últimos 5 dias.
+                          </div>
+                        </div>
+                      ) : (
+                        DataPropostas.map((data, index) => (
                         <div className="card-component" key={index}>
                           <Card
                             empresa={data.nome || "Empresa"}
@@ -179,7 +216,8 @@ function InicioAdmin() {
                             }}
                           />
                         </div>
-                      ))}
+                        ))
+                      )}
                     </div>
                     <br />
                   </div>

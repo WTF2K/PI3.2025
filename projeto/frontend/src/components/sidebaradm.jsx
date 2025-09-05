@@ -79,7 +79,7 @@ export default function SideBar({ visible, onClose }) {
               to="/adm/inicio"
               onClick={() => setSelected("/adm/inicio")}
             >
-              Início
+              Propostas Recentes
             </NavLink>
           </li>
           <li className="nav-item">
