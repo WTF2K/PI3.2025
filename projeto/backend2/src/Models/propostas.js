@@ -105,6 +105,10 @@ module.exports = function(sequelize, DataTypes) {
     data_atribuicao: {
       type: DataTypes.DATEONLY,
       allowNull: true
+    },
+    motivo_rejeicao: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,
