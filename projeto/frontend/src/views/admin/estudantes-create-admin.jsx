@@ -44,7 +44,10 @@ function EstudantesCreateAdmin() {
     };
 
     try {
-      const res = await axios.post("http://localhost:3000/api/utilizadores", payload);
+      const token = localStorage.getItem("token");
+      const res = await axios.post("http://localhost:3000/api/utilizadores", payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.status === 201 || res.data) {
         alert("Conta de estudante criada com sucesso!");
         navigate("/adm/estudantes");
