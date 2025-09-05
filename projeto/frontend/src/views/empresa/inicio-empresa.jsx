@@ -96,7 +96,7 @@ function InicioEmpresa() {
                 <div className="d-flex flex-column">
                   <div className="inicio-admin">
                     {/* Banner de boas-vindas e dashboard */}
-                    <div className="mb-4 p-3 rounded" style={{ background: "#f8f9fa", border: "1px solid #314B66" }}>
+                    <div className="mb-4 p-3 rounded">
                       <div className="d-flex justify-content-between align-items-center">
                         <div>
                           <h4>Bem-vindo, {userData?.nome || 'Empresa'}!</h4>
