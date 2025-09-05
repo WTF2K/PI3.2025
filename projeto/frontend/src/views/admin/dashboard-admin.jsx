@@ -263,10 +263,7 @@ function DashboardAdmin() {
                 <div className="row">
                   {/* Cards de Estatísticas Gerais */}
                   <div className="col-12 mb-4">
-                    <h5 className="text-muted mb-3">
-                      <FontAwesomeIcon icon={faTasks} className="me-2" />
-                      Visão Geral do Sistema
-                    </h5>
+                   
                     <div className="row">
                       {/* Total Utilizadores */}
                       <div className="col-md-3 col-sm-6 mb-3">
@@ -340,10 +337,7 @@ function DashboardAdmin() {
 
                   {/* Estatísticas por Tipo de Utilizador */}
                   <div className="col-12 mb-4">
-                    <h5 className="text-muted mb-3">
-                      <FontAwesomeIcon icon={faUsers} className="me-2" />
-                      Utilizadores por Tipo
-                    </h5>
+                    
                     <div className="row">
                       {/* Estudantes */}
                       <div className="col-md-3 col-sm-6 mb-3">

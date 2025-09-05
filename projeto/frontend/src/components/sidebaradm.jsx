@@ -68,7 +68,7 @@ export default function SideBar({ visible, onClose }) {
               to="/adm/dashboard"
               onClick={() => setSelected("/adm/dashboard")}
             >
-              Dashboard
+              Estatísticas
             </NavLink>
           </li>
           <li className="nav-item">
@@ -79,7 +79,7 @@ export default function SideBar({ visible, onClose }) {
               to="/adm/inicio"
               onClick={() => setSelected("/adm/inicio")}
             >
-              Início
+              Propostas recentes
             </NavLink>
           </li>
           <li className="nav-item">
