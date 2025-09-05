@@ -9,6 +9,7 @@ export default function SideBar({ visible, onClose }) {
   const [tipoUtilizador, setTipoUtilizador] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState({
     propostas: false,
+    estudantes: false,
     options: false,
   });
   const [selected, setSelected] = useState(""); // Estado para armazenar o item selecionado
@@ -138,16 +139,73 @@ export default function SideBar({ visible, onClose }) {
 
           <hr className="m-0" />
           <li className="nav-item">
-            <NavLink
+            <div
+              className={`nav-link text-white d-flex justify-content-between align-items-center ${
+                selected.startsWith("/adm/estudantes") ? "sidebar-act" : ""
+              }`}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setIsDropdownOpen((prevState) => ({
+                  ...prevState,
+                  estudantes: !prevState.estudantes,
+                }));
+              }}
+            >
+              Estudantes
+              <span>{isDropdownOpen.estudantes ? "▲" : "▼"}</span>
+            </div>
+            {isDropdownOpen.estudantes && (
+              <ul className="nav flex-column">
+                <li className="nav-item">
+                  <NavLink
                     className={({ isActive }) =>
                       `nav-link text-white ${isActive ? "sidebar-act" : ""}`
                     }
-              to="/adm/estudantes"
-              end
-              onClick={() => setSelected("/adm/estudantes")}
-            >
-              Estudantes
-            </NavLink>
+                    to="/adm/estudantes"
+                    end
+                    onClick={() => setSelected("/adm/estudantes")}
+                  >
+                    Ver Estudantes
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    className={({ isActive }) =>
+                      `nav-link text-white ${isActive ? "sidebar-act" : ""}`
+                    }
+                    to="/adm/estudantes/create"
+                    end
+                    onClick={() => setSelected("/adm/estudantes/create")}
+                  >
+                    Criar Conta
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    className={({ isActive }) =>
+                      `nav-link text-white ${isActive ? "sidebar-act" : ""}`
+                    }
+                    to="/adm/estudantes/inativos"
+                    end
+                    onClick={() => setSelected("/adm/estudantes/inativos")}
+                  >
+                    Ex-Estudantes
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    className={({ isActive }) =>
+                      `nav-link text-white ${isActive ? "sidebar-act" : ""}`
+                    }
+                    to="/adm/estudantes/validate"
+                    end
+                    onClick={() => setSelected("/adm/estudantes/validate")}
+                  >
+                    Validar Remoções
+                  </NavLink>
+                </li>
+              </ul>
+            )}
           </li>
           {/*<li className="nav-item">
             <NavLink

@@ -7,7 +7,7 @@ import axios from "axios";
 import SideBar from "../../components/sidebaradm";
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
-import CardModal from "../../components/card_modal";
+import CardModal from "../../components/card_modal_duo";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,7 +15,7 @@ import {
   faFilter,
   faCheckCircle,
   faTimesCircle,
-  faCalendar,
+  faGraduationCap,
   faMapMarker,
   faAt,
   faPhone,
@@ -23,52 +23,50 @@ import {
 
 import Logo from "../../imgs/logo1.png";
 
-function PropostasValidateAdmin() {
+function EstudantesValidateAdmin() {
   const topRef = useRef(null);
 
   const [selectedDetails, setSelectedDetails] = useState(null);
-  const [propostas, setPropostas] = useState([]);
+  const [estudantes, setEstudantes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
 
-  const fetchPropostasPendentes = async () => {
+  const fetchEstudantesPedidoRemocao = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:3000/api/propostas/pendentes", {
+      const res = await axios.get("http://localhost:3000/api/utilizadores/estudantes/pedidos-remocao", {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setPropostas(res.data);
+      setEstudantes(res.data);
       setLoading(false);
     } catch (err) {
-      console.error("Erro ao buscar propostas pendentes:", err);
-      setErro("Erro ao carregar propostas pendentes.");
+      console.error("Erro ao buscar pedidos de remoção:", err);
+      setErro("Erro ao carregar pedidos de remoção.");
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPropostasPendentes();
+    fetchEstudantesPedidoRemocao();
   }, []);
 
-  const handleValidar = async (propostaId, validada) => {
+  const handleValidarRemocao = async (estudanteId, aprovar) => {
     try {
       const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
       
-      await axios.put(`http://localhost:3000/api/propostas/${propostaId}/validar`, {
-        validada: validada,
-        validado_por: user?.iduser || null
-      }, {
+      const endpoint = aprovar ? 'aprovar-remocao' : 'rejeitar-remocao';
+      
+      await axios.put(`http://localhost:3000/api/utilizadores/${estudanteId}/${endpoint}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Atualizar a lista de propostas pendentes
-      await fetchPropostasPendentes();
+      // Atualizar a lista de pedidos
+      await fetchEstudantesPedidoRemocao();
       
-      alert(validada ? "Proposta aprovada com sucesso!" : "Proposta rejeitada com sucesso!");
+      alert(aprovar ? "Pedido de remoção aprovado com sucesso!" : "Pedido de remoção rejeitado com sucesso!");
     } catch (err) {
-      console.error("Erro ao validar proposta:", err);
-      alert("Erro ao validar proposta. Tente novamente.");
+      console.error("Erro ao validar pedido de remoção:", err);
+      alert("Erro ao validar pedido. Tente novamente.");
     }
   };
 
@@ -80,7 +78,7 @@ function PropostasValidateAdmin() {
             <SideBar />
           </div>
           <div className="col-md-9 col-sm-12">
-            <Navbar title={"Validar Propostas"} />
+            <Navbar title={"Validar Pedidos de Remoção"} />
             <div className="d-flex flex-grow-1">
               <div className="container-fluid main-content d-flex justify-content-center">
                 <div className="d-flex flex-column">
@@ -113,7 +111,7 @@ function PropostasValidateAdmin() {
                       </div>
                     </div>
 
-                    {/* Detalhes da proposta */}
+                    {/* Detalhes do estudante */}
                     <div className="mx-3">
                       {selectedDetails && (
                         <div
@@ -129,14 +127,16 @@ function PropostasValidateAdmin() {
                               <FontAwesomeIcon
                                 className="me-2 text-success"
                                 icon={faCheckCircle}
-                                onClick={() => handleValidar(selectedDetails.idproposta, true)}
+                                onClick={() => handleValidarRemocao(selectedDetails.iduser, true)}
                                 style={{ cursor: 'pointer' }}
+                                title="Aprovar remoção"
                               />
                               <FontAwesomeIcon
                                 className="text-danger"
                                 icon={faTimesCircle}
-                                onClick={() => handleValidar(selectedDetails.idproposta, false)}
+                                onClick={() => handleValidarRemocao(selectedDetails.iduser, false)}
                                 style={{ cursor: 'pointer' }}
+                                title="Rejeitar pedido"
                               />
                             </div>
                             <div className="d-flex justify-content-md-end justify-content-center">
@@ -158,15 +158,25 @@ function PropostasValidateAdmin() {
                                 {selectedDetails.nome}
                               </h1>
                               <div className="fs-5 d-md-flex flex-row gap-4">
-                                <p><b><FontAwesomeIcon icon={faCalendar} className="me-2" /></b>{selectedDetails.data_submissao}</p>
-                                <p><b><FontAwesomeIcon icon={faMapMarker} className="me-2" /></b>{selectedDetails.localizacao}</p>
+                                <p><b><FontAwesomeIcon icon={faGraduationCap} className="me-2" /></b>{selectedDetails.ano}º ano</p>
+                                <p><b><FontAwesomeIcon icon={faMapMarker} className="me-2" /></b>{selectedDetails.localizacao || "Portugal"}</p>
                               </div>
                               <div className="fs-5 d-md-flex flex-row gap-4">
-                                <p><b className="tag-label rounded px-2 text-white">Área</b><br />{selectedDetails.categoria}</p>
-                                <p><b className="tag-label rounded px-2 text-white">Vaga</b><br />{selectedDetails.vaga}</p>
+                                <p><b><FontAwesomeIcon icon={faAt} className="me-2" /></b>{selectedDetails.email}</p>
+                                <p><b><FontAwesomeIcon icon={faPhone} className="me-2" /></b>{selectedDetails.telefone || "N/A"}</p>
                               </div>
-                              <h4 className="card-title">Detalhes da Proposta</h4>
-                              <p><b className="tag-label rounded px-2 text-white">Descrição</b><br />{selectedDetails.descricao}</p>
+                              <div className="fs-5 d-md-flex flex-row gap-4">
+                                <p><b className="tag-label rounded px-2 text-white">Curso</b><br />{selectedDetails.curso}</p>
+                                <p><b className="tag-label rounded px-2 text-white">Percurso</b><br />{selectedDetails.percurso}</p>
+                              </div>
+                              <h4 className="card-title">Motivo do Pedido</h4>
+                              <p><b className="tag-label rounded px-2 text-white">Interesses</b><br />{selectedDetails.interesses}</p>
+                              <p><b className="tag-label rounded px-2 text-white">Competências</b><br />{selectedDetails.competencias}</p>
+                              
+                              <div className="alert alert-warning mt-3">
+                                <strong>Atenção:</strong> Este estudante solicitou a remoção da plataforma. 
+                                Aprovar irá desativar permanentemente a conta.
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -176,25 +186,27 @@ function PropostasValidateAdmin() {
                     {/* Lista de cartões */}
                     <div className="mt-3 cards-wrapper d-flex flex-wrap gap-0 justify-content-center">
                       {loading ? (
-                        <p>A carregar propostas pendentes...</p>
+                        <p>A carregar pedidos de remoção...</p>
                       ) : erro ? (
                         <p className="text-danger">{erro}</p>
-                      ) : propostas.length === 0 ? (
-                        <p>Não há propostas pendentes de validação.</p>
+                      ) : estudantes.length === 0 ? (
+                        <p>Não há pedidos de remoção pendentes.</p>
                       ) : (
-                        propostas.map((data, index) => (
+                        estudantes.map((data, index) => (
                           <div className="card-component w-100" key={index}>
                             <CardModal
                               imagem={Logo}
-                              empresa={data.empresa?.nome}
-                              areaTrabalho={data.categoria}
-                              ocupacao={data.vaga}
+                              empresa={data.nome}
+                              areaTrabalho={data.percurso}
+                              ocupacao={data.curso}
                               isValidation={true}
+                              labelEmpresa="Nome"
+                              labelAreaTrabalho="Percurso Académico"
                               onViewDetails={() => {
                                 setSelectedDetails(data);
                                 topRef.current?.scrollIntoView({ behavior: "smooth" });
                               }}
-                              onValidar={(validada) => handleValidar(data.idproposta, validada)}
+                              onValidar={(aprovar) => handleValidarRemocao(data.iduser, aprovar)}
                             />
                           </div>
                         ))
@@ -213,4 +225,4 @@ function PropostasValidateAdmin() {
   );
 }
 
-export default PropostasValidateAdmin;
+export default EstudantesValidateAdmin;
