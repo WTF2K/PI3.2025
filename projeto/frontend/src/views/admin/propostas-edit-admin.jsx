@@ -47,6 +47,11 @@ function PropostasEditAdmin() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (!id) {
+          alert("ID da proposta não encontrado");
+          return;
+        }
+        
         const token = localStorage.getItem("token");
         const res = await axios.get(`http://localhost:3000/api/propostas/${id}`, {
           headers: { Authorization: `Bearer ${token}` }

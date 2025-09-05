@@ -57,6 +57,24 @@ function PropostasAdmin() {
     fetchPropostas();
   }, []);
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Tem a certeza que deseja eliminar esta proposta?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:3000/api/propostas/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Atualizar lista
+      setPropostas(propostas.filter(p => p.idproposta !== id));
+      setSelectedDetails(null);
+      alert("Proposta eliminada com sucesso!");
+    } catch (err) {
+      console.error("Erro ao eliminar proposta:", err);
+      alert("Erro ao eliminar proposta: " + (err.response?.data?.error || err.message));
+    }
+  };
+
   if (loading) {
     return <div className="text-center mt-5">Carregando propostas...</div>;
   }
@@ -125,12 +143,16 @@ function PropostasAdmin() {
                                   data-tooltip-id="tooltip-info-2"
                                 />
                               </Link>
-                              <Link to={"edit"} className="text-danger">
+                              <button 
+                                className="btn btn-link text-danger p-0"
+                                onClick={() => handleDelete(selectedDetails.idproposta)}
+                                title="Eliminar proposta"
+                              >
                                 <FontAwesomeIcon
                                   icon={faTrashCan}
                                   data-tooltip-id="tooltip-info-3"
                                 />
-                              </Link>
+                              </button>
                             </div>
                             <div className="d-flex justify-content-md-end justify-content-center">
                               <button
@@ -244,12 +266,12 @@ function PropostasAdmin() {
                             areaTrabalho={data.nome} // Nome da proposta
                             ocupacao={data.categoria} // Categoria
                             isValidation={false}
-                            onViewDetails={() => {
-                              setSelectedDetails(data);
-                              topRef.current?.scrollIntoView({
-                                behavior: "smooth",
-                              });
-                            }}
+                                        onViewDetails={() => {
+              setSelectedDetails(data);
+              topRef.current?.scrollIntoView({
+                behavior: "smooth",
+              });
+            }}
                           />
                         </div>
                       ))}
