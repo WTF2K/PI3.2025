@@ -53,22 +53,35 @@ function PropostasValidateAdmin() {
   const handleValidar = async (propostaId, validada) => {
     try {
       const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
       
-      await axios.put(`http://localhost:3000/api/propostas/${propostaId}/validar`, {
-        validada: validada,
-        validado_por: user?.iduser || null
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      if (validada) {
+        // Se aprovada, marca como validada
+        const user = JSON.parse(localStorage.getItem("user"));
+        await axios.put(`http://localhost:3000/api/propostas/${propostaId}/validar`, {
+          validada: true,
+          validado_por: user?.iduser || null
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Proposta aprovada com sucesso!");
+      } else {
+        // Se rejeitada, elimina a proposta completamente
+        if (window.confirm("Tem a certeza que deseja rejeitar e eliminar esta proposta? Esta ação não pode ser desfeita.")) {
+          await axios.delete(`http://localhost:3000/api/propostas/${propostaId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          alert("Proposta rejeitada e eliminada com sucesso!");
+        } else {
+          return; // Cancela a operação se o utilizador não confirmar
+        }
+      }
 
       // Atualizar a lista de propostas pendentes
       await fetchPropostasPendentes();
       
-      alert(validada ? "Proposta aprovada com sucesso!" : "Proposta rejeitada com sucesso!");
     } catch (err) {
-      console.error("Erro ao validar proposta:", err);
-      alert("Erro ao validar proposta. Tente novamente.");
+      console.error("Erro ao processar proposta:", err);
+      alert("Erro ao processar proposta. Tente novamente.");
     }
   };
 
@@ -131,12 +144,14 @@ function PropostasValidateAdmin() {
                                 icon={faCheckCircle}
                                 onClick={() => handleValidar(selectedDetails.idproposta, true)}
                                 style={{ cursor: 'pointer' }}
+                                title="Aprovar proposta"
                               />
                               <FontAwesomeIcon
                                 className="text-danger"
                                 icon={faTimesCircle}
                                 onClick={() => handleValidar(selectedDetails.idproposta, false)}
                                 style={{ cursor: 'pointer' }}
+                                title="Rejeitar e eliminar proposta"
                               />
                             </div>
                             <div className="d-flex justify-content-md-end justify-content-center">
@@ -167,6 +182,12 @@ function PropostasValidateAdmin() {
                               </div>
                               <h4 className="card-title">Detalhes da Proposta</h4>
                               <p><b className="tag-label rounded px-2 text-white">Descrição</b><br />{selectedDetails.descricao}</p>
+                              
+                              <div className="alert alert-warning mt-3">
+                                <strong>⚠️ Atenção:</strong> 
+                                <br />• <span className="text-success">✓ Aprovar</span> irá validar a proposta
+                                <br />• <span className="text-danger">✗ Rejeitar</span> irá <strong>eliminar permanentemente</strong> a proposta
+                              </div>
                             </div>
                           </div>
                         </div>
