@@ -50,6 +50,9 @@ import PropostasADDAdmin from "./admin/propostas-add-admin";
 import PropostasVALAdmin from "./admin/propostas-validate-admin";
 import EstudantesAdmin from "./admin/estudantes-admin";
 import EstudantesEDITAdmin from "./admin/estudantes-edit-admin";
+import EstudantesValidateAdmin from "./admin/estudantes-validate-admin";
+import EstudantesCreateAdmin from "./admin/estudantes-create-admin";
+import EstudantesInativosAdmin from "./admin/estudantes-inativos-admin";
 import GestoresAdmin from "./admin/gestores-admin";
 import GestoresEDITAdmin from "./admin/gestores-edit-admin";
 import UtilizadoresAdmin from "./admin/utilizadores-admin";
@@ -100,6 +103,9 @@ function App() {
         <Route path="/adm/propostas/add" element={<PropostasADDAdmin />} />
         <Route path="/adm/propostas/validate" element={<PropostasVALAdmin />} />
         <Route path="/adm/estudantes" element={<EstudantesAdmin />} />
+        <Route path="/adm/estudantes/validate" element={<EstudantesValidateAdmin />} />
+        <Route path="/adm/estudantes/create" element={<EstudantesCreateAdmin />} />
+        <Route path="/adm/estudantes/inativos" element={<EstudantesInativosAdmin />} />
         <Route path="/adm/utilizadores" element={<UtilizadoresAdmin />} />
         <Route path="/adm/estudantes/:id" element={<EstudantesEDITAdmin />} />
         <Route path="/adm/gestores" element={<GestoresAdmin />} />
