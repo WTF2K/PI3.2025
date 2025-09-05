@@ -74,7 +74,10 @@ function PropostasADDAdmin() {
     };
 
     try {
-      const res = await axios.post("http://localhost:3000/api/propostas", payload);
+      const token = localStorage.getItem("token");
+      const res = await axios.post("http://localhost:3000/api/propostas", payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.status === 201 || res.data) {
         alert("Proposta adicionada com sucesso!");
         navigate("/adm/propostas");

@@ -68,6 +68,17 @@ export default function SideBar({ visible, onClose }) {
               to="/adm/dashboard"
               onClick={() => setSelected("/adm/dashboard")}
             >
+              Dashboard
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className={({ isActive }) =>
+                `nav-link text-white ${isActive ? "sidebar-act" : ""}`
+              }
+              to="/adm/inicio"
+              onClick={() => setSelected("/adm/inicio")}
+            >
               Início
             </NavLink>
           </li>

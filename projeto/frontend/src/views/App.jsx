@@ -43,6 +43,7 @@ import PropostasListGestor from "./gestor/propostas-list-gestor";
   /* Inicio ADMIN ⇩*/
 }
 import InicioAdmin from "./admin/inicio-admin";
+import DashboardAdmin from "./admin/dashboard-admin";
 import NotifAdmin from "./admin/notif-admin";
 import PropostasAdmin from "./admin/propostas-list-admin";
 import PropostasEDITAdmin from "./admin/propostas-edit-admin";
@@ -96,12 +97,13 @@ function App() {
         <Route path="/gestor/propostas" element={<PropostasListGestor />} />
    
         {/* Admin */}
-        <Route path="/adm/dashboard" element={<InicioAdmin />} />
+        <Route path="/adm/dashboard" element={<DashboardAdmin />} />
+        <Route path="/adm/inicio" element={<InicioAdmin />} />
         <Route path="/adm/notifications" element={<NotifAdmin />} />
         <Route path="/adm/propostas" element={<PropostasAdmin />} />
-        <Route path="/adm/propostas/:id" element={<PropostasEDITAdmin />} />
         <Route path="/adm/propostas/add" element={<PropostasADDAdmin />} />
         <Route path="/adm/propostas/validate" element={<PropostasVALAdmin />} />
+        <Route path="/adm/propostas/:id" element={<PropostasEDITAdmin />} />
         <Route path="/adm/estudantes" element={<EstudantesAdmin />} />
         <Route path="/adm/estudantes/validate" element={<EstudantesValidateAdmin />} />
         <Route path="/adm/estudantes/create" element={<EstudantesCreateAdmin />} />
