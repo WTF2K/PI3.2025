@@ -71,10 +71,10 @@ db.sequelize
       await db.sequelize.query(`DROP TABLE IF EXISTS tipoproposta CASCADE;`);
       await db.sequelize.query(`DROP TABLE IF EXISTS tipocontrato CASCADE;`);
       await db.sequelize.query(`
-        -- Criar tabela tipoutilizador se não existir
-        CREATE TABLE IF NOT EXISTS tipoutilizador (
-          idtuser INTEGER PRIMARY KEY,
-          descricao VARCHAR(50) NOT NULL
+        -- Criar tabela tipoutilizador
+        CREATE TABLE tipoutilizador (
+          idtuser SERIAL PRIMARY KEY,
+          nome VARCHAR(256)
         );
       `);
       
@@ -246,18 +246,18 @@ db.sequelize
       throw new Error("Modelo tipoutilizador não encontrado no db");
     }
     const tiposUtilizadorPreDefinidos = [
-      { idtuser: 1, descricao: "Administrador" },
-      { idtuser: 2, descricao: "Gestor" },
-      { idtuser: 3, descricao: "Empresa" },
-      { idtuser: 4, descricao: "Estudante" },
+      { idtuser: 1, nome: "Administrador" },
+      { idtuser: 2, nome: "Gestor" },
+      { idtuser: 3, nome: "Empresa" },
+      { idtuser: 4, nome: "Estudante" },
     ];
     for (const tipo of tiposUtilizadorPreDefinidos) {
       const [record, created] = await tipoutilizadorModel.findOrCreate({
         where: { idtuser: tipo.idtuser },
-        defaults: { descricao: tipo.descricao },
+        defaults: { nome: tipo.nome },
       });
       if (created) {
-        console.log(`Tipo de utilizador inserido: ${tipo.descricao}`);
+        console.log(`Tipo de utilizador inserido: ${tipo.nome}`);
       }
     }
 
