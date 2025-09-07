@@ -50,15 +50,7 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  /*console.log('=== AUTH CONTROLLER LOGIN CALLED ===');
-  console.log('Request body:', req.body);
-  console.log('Request URL:', req.url);
-  console.log('Request method:', req.method);
-  // Remover espaços em branco dos campos recebidos
-  const nome = req.body.nome?.trim();
-  const email = req.body.email?.trim();
-  const senha = req.body.senha?.trim();
-  const idtuser = req.body.idtuser;*/
+  
   try {
     console.log('=== AUTH CONTROLLER LOGIN CALLED ===');
     console.log('Request body:', req.body);
