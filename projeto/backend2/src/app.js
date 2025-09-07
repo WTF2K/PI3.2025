@@ -8,10 +8,9 @@ const bcrypt = require('bcryptjs');
 
 
 
-// Configurar CORS - apenas esta configuração
+// Configurar CORS - permitir origem do Frontend (env)
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://pint3-2025-1.onrender.com"
+  process.env.FRONTEND_URL || "http://localhost:5173",
 ];
 
 app.use(
