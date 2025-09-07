@@ -81,7 +81,7 @@ db.sequelize
       await db.sequelize.query(`
         -- Criar tabela utilizadores
         CREATE TABLE utilizadores (
-          iduser SERIAL PRIMARY KEY,
+          iduser SERIAL,
           idtuser INTEGER REFERENCES tipoutilizador(idtuser),
           nome VARCHAR(100),
           email VARCHAR(100) UNIQUE,
@@ -89,7 +89,8 @@ db.sequelize
           ativo BOOLEAN DEFAULT TRUE,
           pedido_remocao BOOLEAN DEFAULT FALSE,
           data_remocao DATE,
-          telefone VARCHAR(20)
+          telefone VARCHAR(20),
+          PRIMARY KEY (idtuser, iduser)
         );
       `);
       
@@ -140,10 +141,10 @@ db.sequelize
           vaga TEXT,
           validada BOOLEAN DEFAULT FALSE,
           data_validacao DATE,
-          validado_por INTEGER REFERENCES utilizadores(iduser),
+          validado_por INTEGER,
           ativa BOOLEAN DEFAULT TRUE,
           atribuida_estudante BOOLEAN DEFAULT FALSE,
-          id_estudante_atribuido INTEGER REFERENCES utilizadores(iduser),
+          id_estudante_atribuido INTEGER,
           data_atribuicao DATE,
           FOREIGN KEY (idtuser, iduser, idempresa) REFERENCES empresas(idtuser, iduser, idempresa)
         );
@@ -175,10 +176,12 @@ db.sequelize
         -- Criar tabela favoritos
         CREATE TABLE favoritos (
           idfavorito SERIAL PRIMARY KEY,
-          iduser INTEGER NOT NULL REFERENCES utilizadores(iduser),
+          idtuser INTEGER NOT NULL,
+          iduser INTEGER NOT NULL,
           idproposta INTEGER NOT NULL REFERENCES propostas(idproposta),
           data_favorito DATE NOT NULL DEFAULT CURRENT_DATE,
-          UNIQUE(iduser, idproposta)
+          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser),
+          UNIQUE(idtuser, iduser, idproposta)
         );
       `);
       
