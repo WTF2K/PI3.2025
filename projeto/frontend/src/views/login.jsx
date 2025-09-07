@@ -120,7 +120,13 @@ function Login() {
       setErrorMessage(data.error || data.message || "Erro no login");
     }
   } catch (error) {
-    setErrorMessage("Erro ao tentar iniciar sessão.");
+    console.error("Login error:", error);
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      setErrorMessage("Erro de conexão. Verifique se o servidor está a correr.");
+    } else {
+      setErrorMessage("Erro ao tentar iniciar sessão: " + (error.message || "Erro desconhecido"));
+    }
+    //setErrorMessage("Erro ao tentar iniciar sessão.");
   }
 };
 
