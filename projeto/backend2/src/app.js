@@ -55,7 +55,9 @@ app.use("/api/utilizadores", utilizador);
 app.use("/api/auth", authentication);
 
 db.sequelize
-  .sync()
+  .authenticate()
+  .then(() => console.log('Database connection established.'))
+  .then(() => db.sequelize.sync())
   .then(async () => {
     console.log("Synced db.");
 
@@ -160,7 +162,7 @@ db.sequelize
     }
   })
   .catch((err) => {
-    console.log("Failed to sync db: " + err.message);
+    console.log("Failed to sync db: " + (err && err.message ? err.message : JSON.stringify(err)));
   });
 
 
