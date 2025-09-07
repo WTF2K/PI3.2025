@@ -26,10 +26,35 @@ function InicioEstudante() {
   const [selectedDetails, setSelectedDetails] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [pedidoLoading, setPedidoLoading] = useState(false);
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
     fetchData();
+    loadFavorites();
   }, []);
+
+  function getFavoritesKey() {
+    const userId = localStorage.getItem("iduser") || "anon";
+    return `favoritos_estudante_${userId}`;
+  }
+
+  function loadFavorites() {
+    try {
+      const raw = localStorage.getItem(getFavoritesKey());
+      if (!raw) return setFavorites([]);
+      const parsed = JSON.parse(raw);
+      setFavorites(Array.isArray(parsed) ? parsed : []);
+    } catch (_e) {
+      setFavorites([]);
+    }
+  }
+
+  function saveFavorites(next) {
+    setFavorites(next);
+    try {
+      localStorage.setItem(getFavoritesKey(), JSON.stringify(next));
+    } catch (_e) {}
+  }
 
   function fetchData() {
     const token = localStorage.getItem("token");
@@ -43,6 +68,32 @@ function InicioEstudante() {
       .catch((error) => {
         alert("Erro de ligação à API: " + error.message);
       });
+  }
+
+  function makeProposalKey(p) {
+    // Prefer id when available; fallback to a composite
+    const id = p.id || p._id || p.proposta_id || null;
+    if (id) return String(id);
+    return [p.nome, p.localizacao, p.data_submissao, p.categoria, p.vaga]
+      .map((x) => (x == null ? "" : String(x)))
+      .join("|#|");
+  }
+
+  function isFavorite(p) {
+    const key = makeProposalKey(p);
+    return favorites.some((f) => makeProposalKey(f) === key);
+  }
+
+  function handleToggleFavorite(p) {
+    const key = makeProposalKey(p.raw || p);
+    const exists = favorites.some((f) => makeProposalKey(f) === key);
+    if (exists) {
+      const next = favorites.filter((f) => makeProposalKey(f) !== key);
+      saveFavorites(next);
+    } else {
+      const toStore = p.raw || p;
+      saveFavorites([{ ...toStore }, ...favorites]);
+    }
   }
 
   async function pedirRemocaoConta() {
@@ -234,6 +285,8 @@ function InicioEstudante() {
                             categoria={data.categoria}
                             vaga={data.vaga}
                             imagem={Logo}
+                            isBookmarked={isFavorite(data)}
+                            onToggleFavorite={() => handleToggleFavorite({ raw: data })}
                             onViewDetails={() => {
                               setSelectedDetails(data);
                               topRef.current?.scrollIntoView({ behavior: "smooth" });

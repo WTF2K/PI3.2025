@@ -34,6 +34,7 @@ export default function SideBarEstudante({ visible, onClose }) {
           <li><NavLink to="/estudante/dashboard" className="nav-link text-white">Início</NavLink></li>
           <li><NavLink to="/estudante/perfil" className="nav-link text-white">Ver Perfil</NavLink></li>
           <li><NavLink to={`/estudante/${id}`} className="nav-link text-white">Editar Perfil</NavLink></li>
+          <li><NavLink to="/estudante/favoritos" className="nav-link text-white">Favoritos</NavLink></li>
           
         </ul>
         <hr className="m-0" />
