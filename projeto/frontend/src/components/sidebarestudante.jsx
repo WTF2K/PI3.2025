@@ -18,7 +18,13 @@ export default function SideBarEstudante({ visible, onClose }) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("profile");
+      localStorage.removeItem("idempresa");
+      localStorage.removeItem("iduser");
+      localStorage.removeItem("nome");
+    } catch (_e) {}
     window.location.href = "/";
   };
 
@@ -34,6 +40,7 @@ export default function SideBarEstudante({ visible, onClose }) {
           <li><NavLink to="/estudante/dashboard" className="nav-link text-white">Início</NavLink></li>
           <li><NavLink to="/estudante/perfil" className="nav-link text-white">Ver Perfil</NavLink></li>
           <li><NavLink to={`/estudante/${id}`} className="nav-link text-white">Editar Perfil</NavLink></li>
+          <li><NavLink to="/estudante/favoritos" className="nav-link text-white">Favoritos</NavLink></li>
           
         </ul>
         <hr className="m-0" />

@@ -15,6 +15,7 @@ import Login from "./login";
 import PerfilEstudante from "./perfil-estudante";
 import EstudantesEDITPerfilestudante from "./estudante/estudantes-edit-estudante";
 import InicioEstudante from "./estudante/inicio-estudante";
+import EstudanteFavoritos from "./estudante/estudante-favoritos";
 {
   /* Inicio EMPRESA ⇩*/
 
@@ -76,6 +77,7 @@ function App() {
         <Route path="/estudante/perfil" element={<PerfilEstudante />} />
         <Route path="/estudante/:id" element={<EstudantesEDITPerfilestudante />} />
         <Route path="/estudante/dashboard" element={<InicioEstudante />} />
+        <Route path="/estudante/favoritos" element={<EstudanteFavoritos />} />
         {/* Empresa */}
         <Route path="/empresa/inicio" element={<InicioEmpresa />} />
         <Route path="/empresa/dashboard" element={<DashboardEmpresa />} />
