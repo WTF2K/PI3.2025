@@ -81,7 +81,7 @@ function GestoresAdmin() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar gestores..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",

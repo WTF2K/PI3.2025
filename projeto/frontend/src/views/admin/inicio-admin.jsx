@@ -23,7 +23,9 @@ import Logo from "../../imgs/logo1.png";
 function InicioAdmin() {
   const topRef = useRef(null);
   const [DataPropostas, setDataPropostas] = useState([]);
+  const [allPropostas, setAllPropostas] = useState([]);
   const [selectedDetails, setSelectedDetails] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -51,12 +53,27 @@ function InicioAdmin() {
         // Ordenar por data de submissão (mais recentes primeiro)
         propostasRecentes.sort((a, b) => new Date(b.data_submissao) - new Date(a.data_submissao));
 
+        setAllPropostas(propostasRecentes);
         setDataPropostas(propostasRecentes);
       })
       .catch((error) => {
         alert("Erro de ligação à API: " + error.message);
       });
   }
+
+  // Filtrar propostas baseado no searchTerm
+  const filteredPropostas = allPropostas.filter((proposta) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      proposta.nome?.toLowerCase().includes(searchLower) ||
+      proposta.categoria?.toLowerCase().includes(searchLower) ||
+      proposta.localizacao?.toLowerCase().includes(searchLower) ||
+      proposta.vaga?.toLowerCase().includes(searchLower) ||
+      proposta.descricao?.toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <div className="main-wrapper">
@@ -77,12 +94,14 @@ function InicioAdmin() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar propostas..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
                               borderBottomRightRadius: "0",
                             }}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                           />
                         </div>
                         <div className="d-flex flex-row justify-content-between">
@@ -184,24 +203,24 @@ function InicioAdmin() {
                         <div>
                           <strong>Propostas dos Últimos 5 Dias</strong>
                           <br />
-                          <small>Mostrando {DataPropostas.length} proposta{DataPropostas.length !== 1 ? 's' : ''} submetida{DataPropostas.length !== 1 ? 's' : ''} recentemente</small>
+                          <small>Mostrando {filteredPropostas.length} de {allPropostas.length} proposta{allPropostas.length !== 1 ? 's' : ''} recente{allPropostas.length !== 1 ? 's' : ''}</small>
                         </div>
                       </div>
                     </div>
 
                     {/* Cards com os dados reais */}
                     <div className="cards-wrapper d-flex flex-wrap gap-4 justify-content-center">
-                      {DataPropostas.length === 0 ? (
+                      {filteredPropostas.length === 0 ? (
                         <div className="text-center w-100">
                           <div className="alert alert-warning">
                             <FontAwesomeIcon icon={faCalendar} className="me-2" />
-                            <strong>Nenhuma proposta recente</strong>
+                            <strong>{searchTerm ? "Nenhuma proposta encontrada" : "Nenhuma proposta recente"}</strong>
                             <br />
-                            Não há propostas submetidas nos últimos 5 dias.
+                            {searchTerm ? `Nenhuma proposta corresponde à pesquisa "${searchTerm}".` : "Não há propostas submetidas nos últimos 5 dias."}
                           </div>
                         </div>
                       ) : (
-                        DataPropostas.map((data, index) => (
+                        filteredPropostas.map((data, index) => (
                         <div className="card-component" key={index}>
                           <Card
                             empresa={data.nome || "Empresa"}

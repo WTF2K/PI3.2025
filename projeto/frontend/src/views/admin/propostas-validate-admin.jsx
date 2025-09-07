@@ -30,6 +30,7 @@ function PropostasValidateAdmin() {
   const [propostas, setPropostas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchPropostasPendentes = async () => {
     try {
@@ -85,6 +86,21 @@ function PropostasValidateAdmin() {
     }
   };
 
+  // Filtrar propostas baseado no searchTerm
+  const filteredPropostas = propostas.filter((proposta) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      proposta.nome?.toLowerCase().includes(searchLower) ||
+      proposta.categoria?.toLowerCase().includes(searchLower) ||
+      proposta.localizacao?.toLowerCase().includes(searchLower) ||
+      proposta.vaga?.toLowerCase().includes(searchLower) ||
+      proposta.descricao?.toLowerCase().includes(searchLower) ||
+      proposta.empresa?.nome?.toLowerCase().includes(searchLower)
+    );
+  });
+
   return (
     <div className="main-wrapper">
       <div className="d-flex flex-column">
@@ -103,12 +119,14 @@ function PropostasValidateAdmin() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar propostas..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
                               borderBottomRightRadius: "0",
                             }}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                           />
                         </div>
                         <div className="d-flex flex-row justify-content-between">
@@ -200,10 +218,17 @@ function PropostasValidateAdmin() {
                         <p>A carregar propostas pendentes...</p>
                       ) : erro ? (
                         <p className="text-danger">{erro}</p>
-                      ) : propostas.length === 0 ? (
-                        <p>Não há propostas pendentes de validação.</p>
+                      ) : filteredPropostas.length === 0 ? (
+                        <div className="text-center w-100">
+                          <div className="alert alert-info">
+                            {searchTerm ? 
+                              `Nenhuma proposta encontrada para "${searchTerm}".` : 
+                              "Não há propostas pendentes de validação."
+                            }
+                          </div>
+                        </div>
                       ) : (
-                        propostas.map((data, index) => (
+                        filteredPropostas.map((data, index) => (
                           <div className="card-component w-100" key={index}>
                             <CardModal
                               imagem={Logo}

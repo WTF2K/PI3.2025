@@ -113,7 +113,7 @@ function EstudantesInativosAdmin() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar ex-estudantes..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",

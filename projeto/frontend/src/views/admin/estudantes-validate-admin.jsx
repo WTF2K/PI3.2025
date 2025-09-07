@@ -30,6 +30,7 @@ function EstudantesValidateAdmin() {
   const [estudantes, setEstudantes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchEstudantesPedidoRemocao = async () => {
     try {
@@ -70,6 +71,19 @@ function EstudantesValidateAdmin() {
     }
   };
 
+  // Filtrar estudantes baseado no searchTerm
+  const filteredEstudantes = estudantes.filter((estudante) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      estudante.nome?.toLowerCase().includes(searchLower) ||
+      estudante.email?.toLowerCase().includes(searchLower) ||
+      estudante.curso?.toLowerCase().includes(searchLower) ||
+      estudante.percurso?.toLowerCase().includes(searchLower)
+    );
+  });
+
   return (
     <div className="main-wrapper">
       <div className="d-flex flex-column">
@@ -88,12 +102,14 @@ function EstudantesValidateAdmin() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar pedidos de remoção..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
                               borderBottomRightRadius: "0",
                             }}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                           />
                         </div>
                         <div className="d-flex flex-row justify-content-between">
@@ -189,10 +205,17 @@ function EstudantesValidateAdmin() {
                         <p>A carregar pedidos de remoção...</p>
                       ) : erro ? (
                         <p className="text-danger">{erro}</p>
-                      ) : estudantes.length === 0 ? (
-                        <p>Não há pedidos de remoção pendentes.</p>
+                      ) : filteredEstudantes.length === 0 ? (
+                        <div className="text-center w-100">
+                          <div className="alert alert-info">
+                            {searchTerm ? 
+                              `Nenhum pedido encontrado para "${searchTerm}".` : 
+                              "Não há pedidos de remoção pendentes."
+                            }
+                          </div>
+                        </div>
                       ) : (
-                        estudantes.map((data, index) => (
+                        filteredEstudantes.map((data, index) => (
                           <div className="card-component w-100" key={index}>
                             <CardModal
                               imagem={Logo}
