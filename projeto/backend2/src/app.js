@@ -60,6 +60,16 @@ db.sequelize
   .then(async () => {
     // Executar SQLs necessários para criar tabelas base
     try {
+      // Limpar tabelas existentes que podem ter estrutura incorreta
+      await db.sequelize.query(`DROP TABLE IF EXISTS favoritos CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS tiponotificacao CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS notificacoes CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS propostas CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS empresas CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS utilizadores CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS tipoutilizador CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS tipoproposta CASCADE;`);
+      await db.sequelize.query(`DROP TABLE IF EXISTS tipocontrato CASCADE;`);
       await db.sequelize.query(`
         -- Criar tabela tipoutilizador se não existir
         CREATE TABLE IF NOT EXISTS tipoutilizador (
@@ -139,8 +149,7 @@ db.sequelize
       `);
       
       await db.sequelize.query(`
-        -- Recriar tabela notificacoes com estrutura correta
-        DROP TABLE IF EXISTS notificacoes CASCADE;
+        -- Criar tabela notificacoes
         CREATE TABLE notificacoes (
           idnotas SERIAL PRIMARY KEY,
           mensagem TEXT,
@@ -162,14 +171,13 @@ db.sequelize
       `);
       
       await db.sequelize.query(`
-        -- Criar tabela favoritos se não existir
-        CREATE TABLE IF NOT EXISTS favoritos (
+        -- Criar tabela favoritos
+        CREATE TABLE favoritos (
           idfavorito SERIAL PRIMARY KEY,
-          idtuser INTEGER,
-          iduser INTEGER,
-          idproposta INTEGER REFERENCES propostas(idproposta),
-          data_favorito TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
+          iduser INTEGER NOT NULL REFERENCES utilizadores(iduser),
+          idproposta INTEGER NOT NULL REFERENCES propostas(idproposta),
+          data_favorito DATE NOT NULL DEFAULT CURRENT_DATE,
+          UNIQUE(iduser, idproposta)
         );
       `);
       
