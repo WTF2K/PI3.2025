@@ -23,7 +23,9 @@ import Logo from "../../imgs/logo1.png";
 function InicioGestor() {
   const topRef = useRef(null);
   const [DataPropostas, setDataPropostas] = useState([]);
+  const [allPropostas, setAllPropostas] = useState([]);
   const [selectedDetails, setSelectedDetails] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -44,12 +46,27 @@ function InicioGestor() {
           // proteger datas inválidas
           return !isNaN(d.getTime()) && d >= fiveDaysAgo;
         });
+        setAllPropostas(recentes);
         setDataPropostas(recentes);
       })
       .catch((error) => {
         alert("Erro de ligação à API: " + error.message);
       });
   }
+
+  // Filtrar propostas baseado no searchTerm
+  const filteredPropostas = allPropostas.filter((proposta) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      proposta.nome?.toLowerCase().includes(searchLower) ||
+      proposta.categoria?.toLowerCase().includes(searchLower) ||
+      proposta.localizacao?.toLowerCase().includes(searchLower) ||
+      proposta.vaga?.toLowerCase().includes(searchLower) ||
+      proposta.descricao?.toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <div className="main-wrapper">
@@ -70,12 +87,14 @@ function InicioGestor() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar propostas..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
                               borderBottomRightRadius: "0",
                             }}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                           />
                         </div>
                         <div className="d-flex flex-row justify-content-between">
@@ -172,7 +191,17 @@ function InicioGestor() {
 
                     {/* Cards com os dados reais */}
                     <div className="cards-wrapper d-flex flex-wrap gap-4 justify-content-center">
-                      {DataPropostas.map((data, index) => (
+                      {filteredPropostas.length === 0 ? (
+                        <div className="text-center w-100">
+                          <div className="alert alert-info">
+                            {searchTerm ? 
+                              `Nenhuma proposta encontrada para "${searchTerm}".` : 
+                              "Nenhuma proposta recente encontrada."
+                            }
+                          </div>
+                        </div>
+                      ) : (
+                        filteredPropostas.map((data, index) => (
                         <div className="card-component" key={index}>
                           <Card
                             empresa={data.nome || "Empresa"}
@@ -187,7 +216,8 @@ function InicioGestor() {
                             }}
                           />
                         </div>
-                      ))}
+                        ))
+                      )}
                     </div>
                     <br />
                   </div>

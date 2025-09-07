@@ -68,7 +68,7 @@ export default function SideBar({ visible, onClose }) {
               to="/adm/dashboard"
               onClick={() => setSelected("/adm/dashboard")}
             >
-              Estatísticas
+              Dashboard
             </NavLink>
           </li>
           <li className="nav-item">
@@ -79,7 +79,7 @@ export default function SideBar({ visible, onClose }) {
               to="/adm/inicio"
               onClick={() => setSelected("/adm/inicio")}
             >
-              Propostas recentes
+              Propostas Recentes
             </NavLink>
           </li>
           <li className="nav-item">
@@ -286,18 +286,7 @@ export default function SideBar({ visible, onClose }) {
                 isDropdownOpen.options ? "show" : ""
               }`}
             >
-              <li>
-                <NavLink
-                  className="dropdown-item text-white"
-                  to="/adm/editar"
-                  onClick={() => {
-                    setSelected("/adm/editar");
-                toggleDropdown("propostas");
-                  }}
-                >
-                  Editar Perfil
-                </NavLink>
-              </li>
+             
               <li>
                 <button
                   className="dropdown-item"

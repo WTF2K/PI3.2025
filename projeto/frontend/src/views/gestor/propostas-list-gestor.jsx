@@ -26,6 +26,7 @@ function PropostasGestor() {
   const [selectedDetails, setSelectedDetails] = useState(null);
   const [propostas, setPropostas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Mapeamento tipos de proposta (idtproposta) e contrato (idtcontrato)
   const tiposPropostaMap = {
@@ -57,6 +58,20 @@ function PropostasGestor() {
     fetchPropostas();
   }, []);
 
+  // Filtrar propostas baseado no searchTerm
+  const filteredPropostas = propostas.filter((proposta) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      proposta.nome?.toLowerCase().includes(searchLower) ||
+      proposta.categoria?.toLowerCase().includes(searchLower) ||
+      proposta.localizacao?.toLowerCase().includes(searchLower) ||
+      proposta.vaga?.toLowerCase().includes(searchLower) ||
+      proposta.descricao?.toLowerCase().includes(searchLower)
+    );
+  });
+
   if (loading) {
     return <div className="text-center mt-5">Carregando propostas...</div>;
   }
@@ -79,13 +94,14 @@ function PropostasGestor() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar propostas..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
                               borderBottomRightRadius: "0",
                             }}
-                            // Podes implementar filtro depois aqui
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                           />
                         </div>
                         <div className="d-flex flex-row justify-content-between">
@@ -233,10 +249,17 @@ function PropostasGestor() {
                     </div>
 
                     <div className="mt-3 cards-wrapper d-flex flex-wrap gap-0 justify-content-center">
-                      {propostas.length === 0 && (
-                        <p>Nenhuma proposta encontrada.</p>
+                      {filteredPropostas.length === 0 && (
+                        <div className="text-center w-100">
+                          <div className="alert alert-info">
+                            {searchTerm ? 
+                              `Nenhuma proposta encontrada para "${searchTerm}".` : 
+                              "Nenhuma proposta encontrada."
+                            }
+                          </div>
+                        </div>
                       )}
-                      {propostas.map((data, index) => (
+                      {filteredPropostas.map((data, index) => (
                         <div className="card-component w-100" key={index}>
                           <CardModal
                             imagem={data.imagem || "/imgs/logo1.png"}

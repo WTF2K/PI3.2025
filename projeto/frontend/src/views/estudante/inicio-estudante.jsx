@@ -108,7 +108,7 @@ function InicioEstudante() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar propostas..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
@@ -215,7 +215,17 @@ function InicioEstudante() {
 
                     {/* Cards com os dados reais */}
                     <div className="cards-wrapper d-flex flex-wrap gap-4 justify-content-center">
-                      {filteredPropostas.map((data, index) => (
+                      {filteredPropostas.length === 0 ? (
+                        <div className="text-center w-100">
+                          <div className="alert alert-info">
+                            {searchText ? 
+                              `Nenhuma proposta encontrada para "${searchText}".` : 
+                              "Nenhuma proposta disponível no momento."
+                            }
+                          </div>
+                        </div>
+                      ) : (
+                        filteredPropostas.map((data, index) => (
                         <div className="card-component" key={index}>
                           <Card
                             empresa={data.nome || "Empresa"}
@@ -230,7 +240,8 @@ function InicioEstudante() {
                             }}
                           />
                         </div>
-                      ))}
+                        ))
+                      )}
                     </div>
                     <br />
                   </div>
