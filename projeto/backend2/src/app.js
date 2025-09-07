@@ -19,6 +19,8 @@ const bcrypt = require('bcryptjs');
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:5173",
 ];
+"https://frontend-f91o.onrender.com", // Deployed frontend URL
+  "http://localhost:5173", // Local development
 
 app.use(
   cors({
