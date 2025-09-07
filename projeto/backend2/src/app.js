@@ -83,9 +83,16 @@ db.sequelize
         CREATE TABLE utilizadores (
           iduser SERIAL,
           idtuser INTEGER REFERENCES tipoutilizador(idtuser),
-          nome VARCHAR(100),
-          email VARCHAR(100) UNIQUE,
+          nome VARCHAR(256),
+          email VARCHAR(256) UNIQUE,
           senha VARCHAR(255),
+          data_criacao DATE,
+          curso VARCHAR(256),
+          ano INTEGER,
+          idade INTEGER,
+          interesses VARCHAR(256),
+          competencias VARCHAR(256),
+          percurso VARCHAR(256),
           ativo BOOLEAN DEFAULT TRUE,
           pedido_remocao BOOLEAN DEFAULT FALSE,
           data_remocao DATE,
@@ -145,8 +152,7 @@ db.sequelize
           ativa BOOLEAN DEFAULT TRUE,
           atribuida_estudante BOOLEAN DEFAULT FALSE,
           id_estudante_atribuido INTEGER,
-          data_atribuicao DATE,
-          FOREIGN KEY (idtuser, iduser, idempresa) REFERENCES empresas(idtuser, iduser, idempresa)
+          data_atribuicao DATE
         );
       `);
       
@@ -161,14 +167,14 @@ db.sequelize
       `);
       
       await db.sequelize.query(`
-        -- Criar tabela tiponotificacao se não existir
-        CREATE TABLE IF NOT EXISTS tiponotificacao (
-          idnotas INTEGER REFERENCES notificacoes(idnotas),
-          idtuser INTEGER,
-          iduser INTEGER,
-          idtnote VARCHAR(50),
-          descricao TEXT,
-          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
+        -- Criar tabela tiponotificacao
+        CREATE TABLE tiponotificacao (
+          idnotas INTEGER NOT NULL,
+          idtuser INTEGER NOT NULL,
+          iduser INTEGER NOT NULL,
+          idtnote VARCHAR(10) NOT NULL,
+          descricao VARCHAR(256),
+          PRIMARY KEY (idnotas, idtuser, iduser, idtnote)
         );
       `);
       
@@ -180,7 +186,6 @@ db.sequelize
           iduser INTEGER NOT NULL,
           idproposta INTEGER NOT NULL REFERENCES propostas(idproposta),
           data_favorito DATE NOT NULL DEFAULT CURRENT_DATE,
-          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser),
           UNIQUE(idtuser, iduser, idproposta)
         );
       `);
