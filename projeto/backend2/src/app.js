@@ -57,6 +57,129 @@ app.use("/api/auth", authentication);
 db.sequelize
   .authenticate()
   .then(() => console.log('Database connection established.'))
+  .then(async () => {
+    // Executar SQLs necessários para criar tabelas base
+    try {
+      await db.sequelize.query(`
+        -- Criar tabela tipoutilizador se não existir
+        CREATE TABLE IF NOT EXISTS tipoutilizador (
+          idtuser INTEGER PRIMARY KEY,
+          descricao VARCHAR(50) NOT NULL
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela utilizadores se não existir
+        CREATE TABLE IF NOT EXISTS utilizadores (
+          iduser SERIAL PRIMARY KEY,
+          idtuser INTEGER REFERENCES tipoutilizador(idtuser),
+          nome VARCHAR(100),
+          email VARCHAR(100) UNIQUE,
+          senha VARCHAR(255),
+          ativo BOOLEAN DEFAULT TRUE,
+          pedido_remocao BOOLEAN DEFAULT FALSE,
+          data_remocao DATE,
+          telefone VARCHAR(20)
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela empresas se não existir
+        CREATE TABLE IF NOT EXISTS empresas (
+          idtuser INTEGER NOT NULL,
+          iduser INTEGER NOT NULL,
+          idempresa SERIAL PRIMARY KEY,
+          nome VARCHAR(256),
+          descricao TEXT,
+          localizacao VARCHAR(256),
+          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela tipoproposta se não existir
+        CREATE TABLE IF NOT EXISTS tipoproposta (
+          idtproposta INTEGER PRIMARY KEY,
+          nome VARCHAR(100) NOT NULL
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela tipocontrato se não existir
+        CREATE TABLE IF NOT EXISTS tipocontrato (
+          idtcontrato INTEGER PRIMARY KEY,
+          descricao VARCHAR(100) NOT NULL
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela propostas se não existir
+        CREATE TABLE IF NOT EXISTS propostas (
+          idproposta SERIAL PRIMARY KEY,
+          idtuser INTEGER,
+          iduser INTEGER,
+          idempresa INTEGER,
+          idtproposta INTEGER REFERENCES tipoproposta(idtproposta),
+          idtcontrato INTEGER REFERENCES tipocontrato(idtcontrato),
+          categoria VARCHAR(256),
+          localizacao VARCHAR(256),
+          data_submissao DATE,
+          nome TEXT,
+          descricao TEXT,
+          vaga TEXT,
+          validada BOOLEAN DEFAULT FALSE,
+          data_validacao DATE,
+          validado_por INTEGER REFERENCES utilizadores(iduser),
+          ativa BOOLEAN DEFAULT TRUE,
+          atribuida_estudante BOOLEAN DEFAULT FALSE,
+          id_estudante_atribuido INTEGER REFERENCES utilizadores(iduser),
+          data_atribuicao DATE,
+          FOREIGN KEY (idtuser, iduser, idempresa) REFERENCES empresas(idtuser, iduser, idempresa)
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela notificacoes se não existir
+        CREATE TABLE IF NOT EXISTS notificacoes (
+          idnotas SERIAL PRIMARY KEY,
+          idtuser INTEGER,
+          iduser INTEGER,
+          idtnote VARCHAR(50),
+          descricao TEXT,
+          data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela tiponotificacao se não existir
+        CREATE TABLE IF NOT EXISTS tiponotificacao (
+          idnotas INTEGER REFERENCES notificacoes(idnotas),
+          idtuser INTEGER,
+          iduser INTEGER,
+          idtnote VARCHAR(50),
+          descricao TEXT,
+          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
+        );
+      `);
+      
+      await db.sequelize.query(`
+        -- Criar tabela favoritos se não existir
+        CREATE TABLE IF NOT EXISTS favoritos (
+          idfavorito SERIAL PRIMARY KEY,
+          idtuser INTEGER,
+          iduser INTEGER,
+          idproposta INTEGER REFERENCES propostas(idproposta),
+          data_favorito TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
+        );
+      `);
+      
+      console.log("Base tables created successfully.");
+    } catch (err) {
+      console.log("Error creating base tables:", err.message);
+    }
+  })
   .then(() => db.sequelize.sync())
   .then(async () => {
     console.log("Synced db.");
