@@ -139,8 +139,9 @@ db.sequelize
       `);
       
       await db.sequelize.query(`
-        -- Criar tabela notificacoes se não existir
-        CREATE TABLE IF NOT EXISTS notificacoes (
+        -- Recriar tabela notificacoes com estrutura correta
+        DROP TABLE IF EXISTS notificacoes CASCADE;
+        CREATE TABLE notificacoes (
           idnotas SERIAL PRIMARY KEY,
           mensagem TEXT,
           lida VARCHAR(3),
