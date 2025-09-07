@@ -268,6 +268,27 @@ db.sequelize
       console.log(`Utilizador admin criado com ID: ${novoAdmin.iduser}`);
     }
 
+    // Inserir tipos de utilizador necessários
+    const tipoutilizadorModel = db.tipoutilizador;
+    if (!tipoutilizadorModel) {
+      throw new Error("Modelo tipoutilizador não encontrado no db");
+    }
+    const tiposUtilizadorPreDefinidos = [
+      { idtuser: 1, descricao: "Administrador" },
+      { idtuser: 2, descricao: "Gestor" },
+      { idtuser: 3, descricao: "Empresa" },
+      { idtuser: 4, descricao: "Estudante" },
+    ];
+    for (const tipo of tiposUtilizadorPreDefinidos) {
+      const [record, created] = await tipoutilizadorModel.findOrCreate({
+        where: { idtuser: tipo.idtuser },
+        defaults: { descricao: tipo.descricao },
+      });
+      if (created) {
+        console.log(`Tipo de utilizador inserido: ${tipo.descricao}`);
+      }
+    }
+
     const tiponotificacaoModel = db.tiponotificacao;
     if (!tiponotificacaoModel) {
       throw new Error("Modelo tiponotificacao não encontrado no db");
