@@ -142,12 +142,9 @@ db.sequelize
         -- Criar tabela notificacoes se não existir
         CREATE TABLE IF NOT EXISTS notificacoes (
           idnotas SERIAL PRIMARY KEY,
-          idtuser INTEGER,
-          iduser INTEGER,
-          idtnote VARCHAR(50),
-          descricao TEXT,
-          data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
+          mensagem TEXT,
+          lida VARCHAR(3),
+          data_envio DATE
         );
       `);
       
