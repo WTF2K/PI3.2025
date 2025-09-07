@@ -50,7 +50,7 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  console.log('=== AUTH CONTROLLER LOGIN CALLED ===');
+  /*console.log('=== AUTH CONTROLLER LOGIN CALLED ===');
   console.log('Request body:', req.body);
   console.log('Request URL:', req.url);
   console.log('Request method:', req.method);
@@ -58,13 +58,23 @@ const login = async (req, res) => {
   const nome = req.body.nome?.trim();
   const email = req.body.email?.trim();
   const senha = req.body.senha?.trim();
-  const idtuser = req.body.idtuser;
+  const idtuser = req.body.idtuser;*/
+  try {
+    console.log('=== AUTH CONTROLLER LOGIN CALLED ===');
+    console.log('Request body:', req.body);
+    console.log('Request URL:', req.url);
+    console.log('Request method:', req.method);
+    console.log('Request headers:', req.headers);
+    
+    // Remover espaços em branco dos campos recebidos
+    const nome = req.body.nome?.trim();
+    const email = req.body.email?.trim();
+    const senha = req.body.senha?.trim();
+    const idtuser = req.body.idtuser;
 
   if (!nome || !email || !senha || !idtuser) {
-    return res.status(400).json({ error: 'Campos obrigatórios: nome, email, senha, idtuser.' });
-  }
-
-  try {
+      return res.status(400).json({ error: 'Campos obrigatórios: nome, email, senha, idtuser.' });
+    }
     const user = await utilizadores.findOne({
       where: { email },
       include: [{ model: tipoutilizador, as: 'idtuser_tipoutilizador' }],
@@ -133,8 +143,9 @@ const login = async (req, res) => {
 
   } catch (error) {
     console.error('Erro no login:', error);
-    return res.status(500).json({ error: 'Erro interno no servidor.' });
+    return res.status(500).json({ error: 'Erro interno no servidor.', details: error.message });
   }
 };
+
 
 module.exports = { login, register };

@@ -54,6 +54,17 @@ app.use("/api/tipoutilizador", tipoUtilizador);
 app.use("/api/utilizadores", utilizador);
 app.use("/api/auth", authentication);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal server error', message: err.message });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
 db.sequelize
   .authenticate()
   .then(() => console.log('Database connection established.'))
