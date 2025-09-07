@@ -50,12 +50,19 @@ function UtilizadoresAdmin() {
       });
   }, []);
 
-  // Filtra utilizadores para tipos 2, 3 e 4 e pelo nome segundo searchTerm
-  const filteredEstudantes = estudantes.filter(
-    (u) =>
-      [2, 3, 4].includes(u.idtuser) && // tipos 2, 3 e 4
-      u.nome.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtra utilizadores para tipos 2, 3 e 4 e pelo nome/email segundo searchTerm
+  const filteredEstudantes = estudantes.filter((u) => {
+    if (![2, 3, 4].includes(u.idtuser)) return false; // tipos 2, 3 e 4
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      u.nome?.toLowerCase().includes(searchLower) ||
+      u.email?.toLowerCase().includes(searchLower) ||
+      u.curso?.toLowerCase().includes(searchLower) ||
+      u.percurso?.toLowerCase().includes(searchLower)
+    );
+  });
 
   // Função para confirmar eliminação
   const handleDelete = (id) => {
@@ -93,7 +100,7 @@ function UtilizadoresAdmin() {
                         <div className="col-5">
                           <input
                             type="text"
-                            placeholder="Pesquisar"
+                            placeholder="Pesquisar utilizadores..."
                             className="search-input form-control form_input"
                             style={{
                               borderTopRightRadius: "0",
@@ -226,7 +233,14 @@ function UtilizadoresAdmin() {
                     {/* Lista de utilizadores filtrados */}
                     <div className="mt-3 cards-wrapper d-flex flex-wrap gap-3 justify-content-center">
                       {filteredEstudantes.length === 0 && (
-                        <p className="text-center w-100">Nenhum utilizador encontrado.</p>
+                        <div className="text-center w-100">
+                          <div className="alert alert-info">
+                            {searchTerm ? 
+                              `Nenhum utilizador encontrado para "${searchTerm}".` : 
+                              "Nenhum utilizador encontrado."
+                            }
+                          </div>
+                        </div>
                       )}
                       {filteredEstudantes.map((data, index) => (
                         <div className="card-component w-100" key={index}>
