@@ -18,7 +18,13 @@ export default function SideBarEstudante({ visible, onClose }) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("profile");
+      localStorage.removeItem("idempresa");
+      localStorage.removeItem("iduser");
+      localStorage.removeItem("nome");
+    } catch (_e) {}
     window.location.href = "/";
   };
 
