@@ -26,6 +26,15 @@ function InicioEstudante() {
   const [selectedDetails, setSelectedDetails] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [pedidoLoading, setPedidoLoading] = useState(false);
+  const [favoritos, setFavoritos] = useState(() => {
+    try {
+      const iduser = localStorage.getItem("iduser") || "anon";
+      const raw = localStorage.getItem(`favoritos_${iduser}`);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
   useEffect(() => {
     fetchData();
@@ -44,6 +53,42 @@ function InicioEstudante() {
         alert("Erro de ligação à API: " + error.message);
       });
   }
+
+  useEffect(() => {
+    const iduser = localStorage.getItem("iduser") || "anon";
+    try {
+      localStorage.setItem(`favoritos_${iduser}`, JSON.stringify(favoritos));
+    } catch (e) {
+      // ignore storage errors
+    }
+  }, [favoritos]);
+
+  const isFavorito = (proposta) => {
+    const id = proposta.idproposta ?? proposta.idproposta?.toString();
+    return favoritos.some((f) => String(f.idproposta) === String(id));
+  };
+
+  const handleToggleFavorite = (payload) => {
+    const id = payload?.idproposta ?? payload?.raw?.idproposta;
+    if (id == null) return;
+    setFavoritos((prev) => {
+      const exists = prev.some((p) => String(p.idproposta) === String(id));
+      if (exists) {
+        return prev.filter((p) => String(p.idproposta) !== String(id));
+      }
+      const toStore = {
+        idproposta: id,
+        nome: payload?.raw?.nome ?? payload?.empresa ?? "Empresa",
+        localizacao: payload?.raw?.localizacao ?? payload?.localizacao,
+        data_submissao: payload?.raw?.data_submissao ?? payload?.dataSubmissao,
+        categoria: payload?.raw?.categoria ?? payload?.categoria,
+        vaga: payload?.raw?.vaga ?? payload?.vaga,
+        imagem: payload?.imagem,
+        raw: payload?.raw ?? null,
+      };
+      return [...prev, toStore];
+    });
+  };
 
   async function pedirRemocaoConta() {
     try {
@@ -234,6 +279,10 @@ function InicioEstudante() {
                             categoria={data.categoria}
                             vaga={data.vaga}
                             imagem={Logo}
+                            idproposta={data.idproposta}
+                            rawData={data}
+                            isBookmarked={isFavorito(data)}
+                            onToggleFavorite={handleToggleFavorite}
                             onViewDetails={() => {
                               setSelectedDetails(data);
                               topRef.current?.scrollIntoView({ behavior: "smooth" });

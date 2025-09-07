@@ -17,15 +17,44 @@ class Card extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isBookmarked: false,
+      isBookmarked: !!props.isBookmarked,
       isOpen: false,
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.isBookmarked !== this.props.isBookmarked) {
+      // Keep internal icon state in sync with parent-controlled favorite state
+      // without forcing a re-render loop.
+      // Only update when prop actually changes.
+      // This allows the icon to reflect persisted favorites.
+      //
+      // Note: we avoid setState if equal to prevent extra renders.
+      if (this.state.isBookmarked !== !!this.props.isBookmarked) {
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({ isBookmarked: !!this.props.isBookmarked });
+      }
+    }
+  }
+
   toggleBookmark = () => {
-    this.setState((prevState) => ({
-      isBookmarked: !prevState.isBookmarked,
-    }));
+    const { empresa, localizacao, dataSubmissao, categoria, vaga } = this.props;
+    const payload = {
+      empresa,
+      localizacao,
+      dataSubmissao,
+      categoria,
+      vaga,
+      imagem: this.props.imagem,
+      idproposta: this.props.idproposta,
+      raw: this.props.rawData,
+    };
+
+    if (this.props.onToggleFavorite) {
+      this.props.onToggleFavorite(payload);
+    }
+
+    this.setState((prevState) => ({ isBookmarked: !prevState.isBookmarked }));
   };
 
   toggleDetails = () => {
