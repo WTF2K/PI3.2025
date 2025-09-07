@@ -22,7 +22,7 @@ const allowedOrigins = [
 "https://frontend-f91o.onrender.com", // Deployed frontend URL
   "http://localhost:5173", // Local development
 
-app.use(
+/*app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
@@ -35,7 +35,11 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
-);
+);*/
+app.use(cors({
+  origin: true, // Allow all origins
+  credentials: true,
+}));
 // Middleware para aceitar JSON
 app.use(express.json());
 
