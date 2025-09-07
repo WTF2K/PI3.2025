@@ -79,8 +79,8 @@ db.sequelize
       `);
       
       await db.sequelize.query(`
-        -- Criar tabela utilizadores se não existir
-        CREATE TABLE IF NOT EXISTS utilizadores (
+        -- Criar tabela utilizadores
+        CREATE TABLE utilizadores (
           iduser SERIAL PRIMARY KEY,
           idtuser INTEGER REFERENCES tipoutilizador(idtuser),
           nome VARCHAR(100),
@@ -94,14 +94,15 @@ db.sequelize
       `);
       
       await db.sequelize.query(`
-        -- Criar tabela empresas se não existir
-        CREATE TABLE IF NOT EXISTS empresas (
+        -- Criar tabela empresas
+        CREATE TABLE empresas (
           idtuser INTEGER NOT NULL,
           iduser INTEGER NOT NULL,
-          idempresa SERIAL PRIMARY KEY,
+          idempresa SERIAL,
           nome VARCHAR(256),
           descricao TEXT,
           localizacao VARCHAR(256),
+          PRIMARY KEY (idtuser, iduser, idempresa),
           FOREIGN KEY (idtuser, iduser) REFERENCES utilizadores(idtuser, iduser)
         );
       `);
@@ -123,8 +124,8 @@ db.sequelize
       `);
       
       await db.sequelize.query(`
-        -- Criar tabela propostas se não existir
-        CREATE TABLE IF NOT EXISTS propostas (
+        -- Criar tabela propostas
+        CREATE TABLE propostas (
           idproposta SERIAL PRIMARY KEY,
           idtuser INTEGER,
           iduser INTEGER,
