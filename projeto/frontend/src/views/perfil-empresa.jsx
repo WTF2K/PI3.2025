@@ -1,11 +1,11 @@
 // src/perfil-empresa.jsx
 import "../custom.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-import SideBar from "../components/sidebaradm";
+import SideBar from "../components/sidebarempresa";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 
@@ -13,7 +13,7 @@ import Logo from "../imgs/logo1.png";
 
 function PerfilEmpresa() {
   const navigate = useNavigate();
-  const id = "3"; // substituir com id dinâmico real
+  const { id } = useParams();
 
   const [empresaData, setEmpresaData] = useState({});
 
@@ -21,7 +21,17 @@ function PerfilEmpresa() {
     const fetchEmpresa = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:3000/api/empresas/${id}`, {
+        
+        // Usar ID da URL se disponível, senão usar ID do localStorage
+        const empresaId = id || localStorage.getItem("idempresa");
+        
+        if (!empresaId) {
+          alert("ID da empresa não encontrado");
+          navigate("/empresa/inicio");
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:3000/api/empresas/${empresaId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEmpresaData(response.data);
@@ -30,7 +40,7 @@ function PerfilEmpresa() {
       }
     };
     fetchEmpresa();
-  }, [id]);
+  }, [id, navigate]);
 
   return (
     <div className="main-wrapper">
@@ -53,7 +63,7 @@ function PerfilEmpresa() {
                       <div className="d-flex justify-content-md-end justify-content-center mb-3">
                         <button
                           className="btn btn-primary"
-                          onClick={() => navigate(`/empresa/${id}/editar`)}
+                          onClick={() => navigate(`/empresa/perfil/editar`)}
                         >
                           Editar Perfil
                         </button>

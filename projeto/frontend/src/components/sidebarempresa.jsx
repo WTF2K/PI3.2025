@@ -14,10 +14,14 @@ export default function SideBarEmpresa({ visible, onClose }) {
   if (!location.pathname.startsWith("/empresa")) return null;
 
   useEffect(() => {
-    setUserName(localStorage.getItem("nome") || "");
-    setEmpresaId(localStorage.getItem("idempresa") || "");
-    setUserId(localStorage.getItem("iduser") || "");
-  }, []);
+    const nome = localStorage.getItem("nome");
+    const empresaId = localStorage.getItem("idempresa");
+    const userId = localStorage.getItem("iduser");
+    
+    setUserName(nome || "");
+    setEmpresaId(empresaId || "");
+    setUserId(userId || "");
+  }, [location.pathname]); // Atualiza quando a rota muda
 
   const handleLogout = () => {
     localStorage.clear();
@@ -35,8 +39,8 @@ export default function SideBarEmpresa({ visible, onClose }) {
         <ul className="nav nav-pills flex-column mb-auto">
           <li><NavLink to="/empresa/inicio" className="nav-link text-white">Início</NavLink></li>
           <li><NavLink to="/empresa/dashboard" className="nav-link text-white">Dashboard</NavLink></li>
-          <li><NavLink to={`/empresa/${idempresa}`} className="nav-link text-white">Perfil Empresa</NavLink></li>
-          <li><NavLink to={`/empresa/${idempresa}/editar`} className="nav-link text-white">Editar Perfil</NavLink></li>
+          <li><NavLink to="/empresa/perfil" className="nav-link text-white">Perfil Empresa</NavLink></li>
+          <li><NavLink to="/empresa/perfil/editar" className="nav-link text-white">Editar Perfil</NavLink></li>
           <li><NavLink to="/empresa/propostas" className="nav-link text-white">Minhas Propostas</NavLink></li>
           <li><NavLink to="/empresa/propostas/add" className="nav-link text-white">Nova Proposta</NavLink></li>
         </ul>

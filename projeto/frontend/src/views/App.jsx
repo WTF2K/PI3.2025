@@ -79,6 +79,8 @@ function App() {
         {/* Empresa */}
         <Route path="/empresa/inicio" element={<InicioEmpresa />} />
         <Route path="/empresa/dashboard" element={<DashboardEmpresa />} />
+        <Route path="/empresa/perfil" element={<PerfilEmpresa />} />
+        <Route path="/empresa/perfil/editar" element={<EditarEmpresa />} />
         <Route path="/empresa/:id" element={<PerfilEmpresa />} />
         <Route path="/empresa/:id/editar" element={<EditarEmpresa />} />
         <Route path="/empresa/propostas" element={<PropostasEmpresa />} />
