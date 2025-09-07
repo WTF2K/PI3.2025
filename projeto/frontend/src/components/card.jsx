@@ -23,9 +23,20 @@ class Card extends React.Component {
   }
 
   toggleBookmark = () => {
-    this.setState((prevState) => ({
-      isBookmarked: !prevState.isBookmarked,
-    }));
+    if (this.props.onToggleFavorite) {
+      const { empresa, localizacao, dataSubmissao, categoria, vaga } = this.props;
+      this.props.onToggleFavorite({
+        empresa,
+        localizacao,
+        dataSubmissao,
+        categoria,
+        vaga,
+        imagem: this.props.imagem,
+        raw: this.props.rawData || null,
+      });
+      return;
+    }
+    this.setState((prevState) => ({ isBookmarked: !prevState.isBookmarked }));
   };
 
   toggleDetails = () => {
@@ -35,7 +46,12 @@ class Card extends React.Component {
   };
 
   render() {
-    const { isBookmarked, isOpen } = this.state;
+    const stateIsBookmarked = this.state.isBookmarked;
+    const isOpen = this.state.isOpen;
+    const isBookmarked =
+      typeof this.props.isBookmarked === "boolean"
+        ? this.props.isBookmarked
+        : stateIsBookmarked;
     const { empresa, localizacao, dataSubmissao, categoria, vaga } = this.props;
 
     if (!isOpen) {

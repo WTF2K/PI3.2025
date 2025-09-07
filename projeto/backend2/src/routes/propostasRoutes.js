@@ -5,7 +5,7 @@ const { autenticarJWT } = require('../Middleware/authMiddleware');
 
 
 // IMPORTANTE: Rotas mais específicas primeiro
-// Rotas para EMPRESAS
+
 router.get('/empresa/:idempresa/ativas', autenticarJWT, controller.getAtivasByEmpresa);
 router.get('/empresa/:idempresa/atribuidas', autenticarJWT, controller.getAtribuidasByEmpresa);
 router.get('/empresa/:idempresa', autenticarJWT, controller.getByEmpresa);
