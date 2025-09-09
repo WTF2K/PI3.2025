@@ -56,7 +56,7 @@ app.use("/api/utilizadores", utilizador);
 app.use("/api/auth", authentication);
 
 db.sequelize
-  .sync()
+  .sync({ alter: true })
   .then(async () => {
     console.log("Synced db.");
 
