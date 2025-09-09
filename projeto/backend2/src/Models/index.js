@@ -6,7 +6,6 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
-  operatorsAliases: false,
 
   pool: {
     max: dbConfig.pool.max,
@@ -46,5 +45,16 @@ db.propostas.belongsTo(db.empresas, {
 
 db.utilizadores.belongsTo(db.tipoutilizador, { as: "idtuser_tipoutilizador", foreignKey: "idtuser"});
 db.tipoutilizador.hasMany(db.utilizadores, { as: "utilizadores", foreignKey: "idtuser"});
+
+// Relações com favoritos (iduser é chave única/PK em utilizadores)
+if (db.favoritos && db.utilizadores) {
+  db.utilizadores.hasMany(db.favoritos, { foreignKey: 'iduser', sourceKey: 'iduser', as: 'favoritos' });
+  db.favoritos.belongsTo(db.utilizadores, { foreignKey: 'iduser', targetKey: 'iduser', as: 'utilizador' });
+}
+
+if (db.favoritos && db.propostas) {
+  db.propostas.hasMany(db.favoritos, { foreignKey: 'idproposta', sourceKey: 'idproposta', as: 'favoritos' });
+  db.favoritos.belongsTo(db.propostas, { foreignKey: 'idproposta', targetKey: 'idproposta', as: 'proposta' });
+}
 
 module.exports = db;   

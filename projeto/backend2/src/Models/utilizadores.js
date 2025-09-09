@@ -80,6 +80,13 @@ module.exports = function(sequelize, DataTypes) {
     timestamps: false,
     indexes: [
       {
+        name: "utilizadores_iduser_unique",
+        unique: true,
+        fields: [
+          { name: "iduser" }
+        ]
+      },
+      {
         name: "pk_utilizadores",
         unique: true,
         fields: [
