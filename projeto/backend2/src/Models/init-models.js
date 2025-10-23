@@ -44,8 +44,10 @@ function initModels(sequelize) {
   utilizadores.hasMany(tiponotificacao, { as: "tiponotificacaos", foreignKey: "idtuser"});
   tiponotificacao.belongsTo(utilizadores, { as: "iduser_utilizadore", foreignKey: "iduser"});
   utilizadores.hasMany(tiponotificacao, { as: "iduser_tiponotificacaos", foreignKey: "iduser"});
-  favoritos.belongsTo(utilizadores, { as: "idtuser_utilizadore", foreignKey: "idtuser"});
-  utilizadores.hasMany(favoritos, { as: "favoritos", foreignKey: "idtuser"});
+  favoritos.belongsTo(utilizadores, { as: "iduser_utilizadore", foreignKey: "iduser"});
+  utilizadores.hasMany(favoritos, { as: "favoritos", foreignKey: "iduser"});
+  favoritos.belongsTo(propostas, { as: "idproposta_propostum", foreignKey: "idproposta"});
+  propostas.hasMany(favoritos, { as: "favoritos", foreignKey: "idproposta"});
  
 
   return {

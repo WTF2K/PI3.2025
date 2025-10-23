@@ -93,3 +93,28 @@ FROM information_schema.columns
 WHERE table_name = 'utilizadores' 
 AND column_name IN ('ativo', 'pedido_remocao', 'data_remocao', 'telefone')
 ORDER BY column_name;
+
+-- 5. Garantir que existe uma constraint UNIQUE em utilizadores(iduser)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM   pg_constraint c
+        JOIN   pg_class     t ON t.oid = c.conrelid
+        JOIN   pg_namespace n ON n.oid = t.relnamespace
+        WHERE  c.contype = 'u'
+        AND    t.relname = 'utilizadores'
+        AND    n.nspname = 'public'
+        AND    c.conname = 'utilizadores_iduser_unique'
+    ) THEN
+        BEGIN
+            ALTER TABLE public.utilizadores
+            ADD CONSTRAINT utilizadores_iduser_unique UNIQUE (iduser);
+            RAISE NOTICE 'Constraint UNIQUE criada em utilizadores(iduser)';
+        EXCEPTION WHEN others THEN
+            RAISE NOTICE 'Falha ao criar UNIQUE em utilizadores(iduser): %', SQLERRM;
+        END;
+    ELSE
+        RAISE NOTICE 'Constraint UNIQUE utilizadores_iduser_unique já existe';
+    END IF;
+END $$;
