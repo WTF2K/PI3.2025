@@ -361,3 +361,188 @@ exports.ativarConta = async (req, res) => {
     res.status(500).json({ error: "Erro ao ativar conta: " + err.message });
   }
 };
+
+// ADMIN: Aprovar definitivamente a remoção de estudante
+exports.adminAprovarRemocao = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de utilizador inválido." });
+    }
+
+    const estudante = await utilizadores.findOne({
+      where: { iduser: id, idtuser: 4 }
+    });
+
+    if (!estudante) {
+      return res.status(404).json({ message: "Estudante não encontrado." });
+    }
+
+    // Admin pode aprovar mesmo que não tenha pedido de remoção
+    const [updated] = await utilizadores.update({
+      ativo: false,
+      data_remocao: new Date().toISOString().split('T')[0],
+      pedido_remocao: false,
+      removido_por_admin: true
+    }, {
+      where: { iduser: id, idtuser: 4 }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Erro ao atualizar estudante." });
+    }
+
+    res.status(200).json({ message: "Estudante removido definitivamente pelo administrador." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao aprovar remoção: " + err.message });
+  }
+};
+
+// ADMIN: Rejeitar pedido de remoção (força reativação)
+exports.adminRejeitarRemocao = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de utilizador inválido." });
+    }
+
+    const [updated] = await utilizadores.update({
+      pedido_remocao: false,
+      ativo: true,
+      data_remocao: null,
+      removido_por_admin: false
+    }, {
+      where: { iduser: id, idtuser: 4 }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Estudante não encontrado." });
+    }
+
+    res.status(200).json({ message: "Pedido de remoção rejeitado e conta reativada pelo administrador." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao rejeitar pedido: " + err.message });
+  }
+};
+
+// ADMIN: Obter todos os estudantes (ativos e inativos)
+exports.adminGetTodosEstudantes = async (req, res) => {
+  try {
+    const estudantes = await utilizadores.findAll({
+      where: { idtuser: 4 },
+      order: [['nome', 'ASC']]
+    });
+    res.json(estudantes);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao obter estudantes: " + err.message });
+  }
+};
+
+// ADMIN: Forçar criação de nova conta de estudante
+exports.adminCriarEstudante = async (req, res) => {
+  try {
+    const {
+      nome,
+      email,
+      senha,
+      curso,
+      ano,
+      idade,
+      interesses,
+      competencias,
+      percurso,
+      telefone
+    } = req.body;
+
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ message: "Campos obrigatórios: nome, email, senha." });
+    }
+
+    // Verifica se o email já existe
+    const existente = await utilizadores.findOne({ where: { email } });
+    if (existente) {
+      return res.status(409).json({ message: "Email já está em uso." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(senha, salt);
+
+    const dadosNovoEstudante = {
+      nome,
+      email,
+      senha: hashedPassword,
+      idtuser: 4, // Estudante
+      data_criacao: new Date(),
+      ativo: true,
+      pedido_remocao: false,
+      curso,
+      ano,
+      idade,
+      interesses,
+      competencias,
+      percurso,
+      telefone
+    };
+
+    const novoEstudante = await utilizadores.create(dadosNovoEstudante);
+    
+    // Remove a senha da resposta
+    const { senha: _, ...estudanteSemSenha } = novoEstudante.toJSON();
+    
+    res.status(201).json({
+      message: "Estudante criado pelo administrador com sucesso.",
+      estudante: estudanteSemSenha
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao criar estudante: " + err.message });
+  }
+};
+
+// ADMIN: Alterar credenciais de qualquer utilizador
+exports.adminAlterarCredenciais = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de utilizador inválido." });
+    }
+
+    const { email, senha, nome } = req.body;
+
+    if (!email && !senha && !nome) {
+      return res.status(400).json({ error: "Pelo menos um campo deve ser fornecido (email, senha, nome)." });
+    }
+
+    const dadosAtualizar = {};
+    if (nome) dadosAtualizar.nome = nome;
+    if (email) {
+      // Verifica se o novo email já está em uso por outro utilizador
+      const emailExistente = await utilizadores.findOne({ 
+        where: { 
+          email, 
+          iduser: { [require('sequelize').Op.ne]: id }
+        } 
+      });
+      if (emailExistente) {
+        return res.status(409).json({ message: "Email já está em uso por outro utilizador." });
+      }
+      dadosAtualizar.email = email;
+    }
+    if (senha && senha.trim() !== "") {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(senha, salt);
+      dadosAtualizar.senha = hashedPassword;
+    }
+
+    const [updated] = await utilizadores.update(dadosAtualizar, {
+      where: { iduser: id }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Utilizador não encontrado." });
+    }
+
+    res.status(200).json({ message: "Credenciais atualizadas pelo administrador com sucesso." });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao alterar credenciais: " + err.message });
+  }
+};

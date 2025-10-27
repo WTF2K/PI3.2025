@@ -72,6 +72,11 @@ module.exports = function(sequelize, DataTypes) {
     telefone: {
       type: DataTypes.STRING(20),
       allowNull: true
+    },
+    removido_por_admin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false
     }
   }, {
     sequelize,

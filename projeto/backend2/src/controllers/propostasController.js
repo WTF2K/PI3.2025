@@ -1,6 +1,7 @@
 const db = require('../Models'); // ajusta o caminho se for diferente
 const propostas = db.propostas;
 const empresas = db.empresas;
+const utilizadores = db.utilizadores;
 
 exports.getAll = async (req, res) => {
   try {
@@ -362,10 +363,167 @@ exports.getPendentes = async (req, res) => {
           { validada: false }
         ],
         data_validacao: { [Op.is]: null }
-      }
+      },
+      include: [{
+        model: empresas,
+        as: 'idempresa_empresa',
+        attributes: ['nome', 'idempresa']
+      }]
     });
     res.json(propostasPendentes);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+// ADMIN: Obter todas as propostas com detalhes completos
+exports.getAllAdmin = async (req, res) => {
+  try {
+    const todasPropostas = await propostas.findAll({
+      include: [{
+        model: empresas,
+        as: 'idempresa_empresa',
+        attributes: ['nome', 'idempresa', 'localizacao']
+      }],
+      order: [['data_submissao', 'DESC']]
+    });
+    res.json(todasPropostas);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ADMIN: Forçar validação de proposta (aprovação/rejeição)
+exports.forcarValidacao = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { validada, motivo_rejeicao } = req.body;
+    const adminId = req.user.iduser;
+
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de proposta inválido." });
+    }
+
+    if (typeof validada !== 'boolean') {
+      return res.status(400).json({ error: "Campo 'validada' deve ser true ou false." });
+    }
+
+    const dadosAtualizar = {
+      validada: validada,
+      data_validacao: new Date().toISOString().split('T')[0],
+      validado_por: adminId
+    };
+
+    // Se rejeitada, adiciona motivo
+    if (!validada && motivo_rejeicao) {
+      dadosAtualizar.motivo_rejeicao = motivo_rejeicao;
+    }
+
+    const [updated] = await propostas.update(dadosAtualizar, {
+      where: { idproposta: id }
+    });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    const status = validada ? "aprovada" : "rejeitada";
+    res.status(200).json({ message: `Proposta ${status} pelo administrador.` });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao validar proposta: " + err.message });
+  }
+};
+
+// ADMIN: Forçar eliminação de proposta (mesmo se atribuída)
+exports.forcarEliminacao = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID de proposta inválido." });
+    }
+
+    const proposta = await propostas.findByPk(id);
+    if (!proposta) {
+      return res.status(404).json({ message: "Proposta não encontrada." });
+    }
+
+    const deleted = await propostas.destroy({
+      where: { idproposta: id }
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ message: 'Proposta não encontrada.' });
+    }
+
+    res.status(200).json({ message: 'Proposta eliminada pelo administrador.' });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao eliminar proposta: " + err.message });
+  }
+};
+
+// ADMIN: Criar proposta em nome de uma empresa
+exports.criarPorEmpresa = async (req, res) => {
+  try {
+    const {
+      idempresa,
+      idtproposta,
+      idtcontrato,
+      categoria,
+      localizacao,
+      nome,
+      descricao,
+      vaga
+    } = req.body;
+
+    const adminId = req.user.iduser;
+
+    // Validação básica
+    if (!idempresa || !nome || !descricao || !idtproposta || !idtcontrato) {
+      return res.status(400).json({
+        error: "Campos obrigatórios: idempresa, nome, descricao, idtproposta, idtcontrato."
+      });
+    }
+
+    // Verificar se a empresa existe
+    const empresa = await empresas.findOne({ where: { idempresa } });
+    if (!empresa) {
+      return res.status(404).json({ error: "Empresa não encontrada." });
+    }
+
+    // Criar a proposta
+    const novaProposta = await propostas.create({
+      idtuser: empresa.idtuser,
+      iduser: empresa.iduser,
+      idempresa,
+      idtproposta,
+      idtcontrato,
+      categoria,
+      localizacao,
+      data_submissao: new Date().toISOString().split('T')[0],
+      nome,
+      descricao,
+      vaga,
+      ativa: true,
+      atribuida_estudante: false,
+      validada: true, // Admin pode aprovar automaticamente
+      data_validacao: new Date().toISOString().split('T')[0],
+      validado_por: adminId
+    });
+
+    res.status(201).json({
+      message: "Proposta criada pelo administrador com sucesso.",
+      proposta: novaProposta
+    });
+
+  } catch (err) {
+    console.error('Erro ao criar proposta para empresa:', err);
+    
+    if (err.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(400).json({
+        error: 'Erro de chave estrangeira: verifica se os IDs relacionados existem.'
+      });
+    }
+
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 };
